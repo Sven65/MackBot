@@ -325,7 +325,32 @@ var util = {
 		"desc": "Calculate math.",
 		"usage": "calc `expression`",
 		"cooldown": 10
-	}
+	},
+	"currency": {
+		process: function(args, message, bot, settings){
+			if(args.length >= 4){
+				var amt = args[1];
+				var from = args[2].toUpperCase();
+				var to = args[3].toUpperCase();
+
+				var link = "https://www.google.co.uk/finance/converter?a="+amt+"&from="+from+"&to="+to;
+
+				request(link, function(error, response, body){
+					if(!error && response.statusCode == 200){
+						var result = body.match(/\<span class=bld\>(.+?)\<\/span\>/gmi)[0];
+						if(result != undefined){
+							bot.sendMessage(message.channel, amt+" "+from+" is "+result.replace(/\<span class=bld\>/, "").replace(/\<\/span\>/, ""));
+						}else{
+							bot.sendMessage(message.channel, "Couldn't find any rates!");
+						}
+					}
+				});
+			}
+		},
+		"desc": "Convert currencies.",
+		"usage": "currency `amount` `from` `to`",
+		"cooldown": 10
+	},
 };
 
 exports.util = util;

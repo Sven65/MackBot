@@ -9,15 +9,17 @@ var settings = require("./settings.json");
 var misc = require("./cmds/misc.js").misc;
 var admin = require("./cmds/admin.js").admin;
 var util = require("./cmds/util.js").util;
-var unlisted = require("./cmds/unlisted.js").unlisted;
+var nsfw = require("./cmds/nsfw.js").nsfw;
 var defaults = require("./cmds/defaults.js").defaults;
 
-var commands = extend({}, misc, admin, util, unlisted, defaults);
+var commands = extend({}, misc, admin, util, nsfw, defaults);
 
 var stdin = process.openStdin();
 
 var lastExecTime = {};
 setInterval(function(){ lastExecTime = {}; },3600000);
+
+var nsfwChans = [];
 
 // Misc functions
 
@@ -31,10 +33,17 @@ function init(){
 	mybot.login(settings['bot']['email'], settings['bot']['pass']);
 }
 
+function loadNSFWChans(){
+	fs.readFile(__dirname+"/data/nsfw.txt", 'utf8', function(err, data){
+		if(err){ throw err; }
+		nsfwChans = data.split(",");
+	});
+}
+
 function extend(target) {
     var sources = [].slice.call(arguments, 1);
-    sources.forEach(function (source) {
-        for (var prop in source) {
+    sources.forEach(function (source){
+        for(var prop in source){
             target[prop] = source[prop];
         }
     });
@@ -89,6 +98,23 @@ mybot.on("message", function(message){
 		    helpMsg += "\n\n**Util: **";
 		    helpMsg += Object.keys(util).sort().join(", ")
 		    mybot.sendMessage(message.channel, helpMsg);
+		}else if(args[0] == settings['prefix']['main']+"nsfw" || settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">" && args[1] == "nsfw"){
+			if(settings["admins"].indexOf(message.author.id) > -1){
+				var chan = message.channel.id;
+				if(nsfwChans.indexOf(chan) > -1){
+					nsfwChans.splice(nsfwChans.indexOf(chan), 1);
+					fs.writeFile(__dirname+"/data/nsfw.txt", nsfwChans.sort().join(","), 'utf8', function(err){
+						if(err){ throw err; }
+						mybot.sendMessage(message.channel, "NSFW Commands disabled for channel.");
+					});
+				}else{
+					nsfwChans.push(chan);
+					fs.appendFile(__dirname+"/data/nsfw.txt", nsfwChans.sort().join(","), 'utf8', function(err){
+						if(err){ throw err; }
+						mybot.sendMessage(message.channel, "NSFW Commands enabled for channel.");
+					});
+				}
+			}
 		}else{
 			if(args[0].substring(0, settings['prefix']['main'].length) == settings['prefix']['main'] || settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">"){
 				var cmd;
@@ -103,26 +129,53 @@ mybot.on("message", function(message){
 
 				var index = Object.keys(commands).indexOf(cmd);
 				if(index > -1){
-					var now = new Date().valueOf();
-					if(!lastExecTime.hasOwnProperty(cmd)){
-						lastExecTime[cmd] = {};
-					}
+					if(!commands[cmd].nsfw){
+						var now = new Date().valueOf();
+						if(!lastExecTime.hasOwnProperty(cmd)){
+							lastExecTime[cmd] = {};
+						}
 
-					if(!lastExecTime[cmd].hasOwnProperty(message.author.id)){
-						lastExecTime[cmd][message.author.id] = new Date().valueOf();
-					}
+						if(!lastExecTime[cmd].hasOwnProperty(message.author.id)){
+							lastExecTime[cmd][message.author.id] = new Date().valueOf();
+						}
 
-					if(settings["admins"].indexOf(message.author.id) == -1){
-						if(now < lastExecTime[cmd][message.author.id] + (commands[cmd].cooldown * 1000)){
-							mybot.sendMessage(message, message.author.username.replace(/@/g, '@\u200b') + ", you need to *cooldown* (" + Math.round(((lastExecTime[cmd][message.author.id] + commands[cmd].cooldown * 1000) - now) / 1000) + " seconds)", function(e, m){ mybot.deleteMessage(m, {"wait": 6000}); });
-							if (!message.channel.isPrivate) mybot.deleteMessage(message, {"wait": 10000});
-							return;
+						if(settings["admins"].indexOf(message.author.id) == -1){
+							if(now < lastExecTime[cmd][message.author.id] + (commands[cmd].cooldown * 1000)){
+								mybot.sendMessage(message, message.author.username.replace(/@/g, '@\u200b') + ", you need to *cooldown* (" + Math.round(((lastExecTime[cmd][message.author.id] + commands[cmd].cooldown * 1000) - now) / 1000) + " seconds)", function(e, m){ mybot.deleteMessage(m, {"wait": 6000}); });
+								if (!message.channel.isPrivate) mybot.deleteMessage(message, {"wait": 10000});
+								return;
+							}else{
+								commands[cmd].process(args, message, mybot, settings);
+								lastExecTime[cmd][message.author.id] = now;
+							}
 						}else{
 							commands[cmd].process(args, message, mybot, settings);
-							lastExecTime[cmd][message.author.id] = now;
 						}
+
 					}else{
-						commands[cmd].process(args, message, mybot, settings);
+						if(nsfwChans.indexOf(message.channel.id) > -1 || message.channel.isPrivate){
+							var now = new Date().valueOf();
+							if(!lastExecTime.hasOwnProperty(cmd)){
+								lastExecTime[cmd] = {};
+							}
+
+							if(!lastExecTime[cmd].hasOwnProperty(message.author.id)){
+								lastExecTime[cmd][message.author.id] = new Date().valueOf();
+							}
+
+							if(settings["admins"].indexOf(message.author.id) == -1){
+								if(now < lastExecTime[cmd][message.author.id] + (commands[cmd].cooldown * 1000)){
+									mybot.sendMessage(message, message.author.username.replace(/@/g, '@\u200b') + ", you need to *cooldown* (" + Math.round(((lastExecTime[cmd][message.author.id] + commands[cmd].cooldown * 1000) - now) / 1000) + " seconds)", function(e, m){ mybot.deleteMessage(m, {"wait": 6000}); });
+									if(!message.channel.isPrivate) mybot.deleteMessage(message, {"wait": 10000});
+									return;
+								}else{
+									commands[cmd].process(args, message, mybot, settings);
+									lastExecTime[cmd][message.author.id] = now;
+								}
+							}else{
+								commands[cmd].process(args, message, mybot, settings);
+							}
+						}
 					}
 				}
 			}
