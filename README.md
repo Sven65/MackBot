@@ -1,0 +1,2 @@
+# MackBot
+A discord bot

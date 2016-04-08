@@ -1,0 +1,17 @@
+{
+	"disabled": [],
+	"admins": ["141610251299454976"],
+	"ignored": [],
+	"mal": {
+		"name": "",
+		"pass": ""
+	},
+	"bot": {
+		"email": "",
+		"pass": ""
+	},
+	"prefix": "§",
+	"maxwords": 10,
+	"version": "1.0",
+	"owner": "141610251299454976"
+}
