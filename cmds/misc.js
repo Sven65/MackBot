@@ -1,6 +1,6 @@
 var request = require('request');
 var parser = require("simple-xml2json");
-var helper = require("./Helper.js");
+var helper = require("../util/Helper.js");
 
 var misc = {
 	"15": {

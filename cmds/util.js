@@ -1,4 +1,4 @@
-var helper = require("./Helper.js");
+var helper = require("../util/Helper.js");
 var fs = require("fs");
 var request = require('request');
 var parseString = require('xml2js').parseString;

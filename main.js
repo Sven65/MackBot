@@ -4,7 +4,7 @@ var moment = require("moment");
 
 var mybot = new Discord.Client();
 
-var settings;
+var settings = require("./settings.json");
 
 var misc = require("./cmds/misc.js").misc;
 var admin = require("./cmds/admin.js").admin;
@@ -12,10 +12,7 @@ var util = require("./cmds/util.js").util;
 var unlisted = require("./cmds/unlisted.js").unlisted;
 var defaults = require("./cmds/defaults.js").defaults;
 
-var commands = extend({}, misc, admin);
-var commands = extend({}, commands, util);
-var commands = extend({}, commands, unlisted);
-var commands = extend({}, commands, defaults);
+var commands = extend({}, misc, admin, util, unlisted, defaults);
 
 var stdin = process.openStdin();
 
@@ -24,22 +21,14 @@ setInterval(function(){ lastExecTime = {}; },3600000);
 
 // Misc functions
 
-function loadSettings(){
-	fs.readFile('./settings.json', 'utf8', function(err, data){
-		if(err){ throw err; }
-		settings = JSON.parse(data);
-		mybot.login(settings['bot']['email'], settings['bot']['pass']);
-	});
-}
-
 function init(){
-	loadSettings();
 	var now = new Date().valueOf();
 	for(i=0;i<commands.length;i++){
 		if(!lastExecTime.hasOwnProperty(commands[i])){
 			lastExecTime[commands[i]] = {};
 		}
 	}
+	mybot.login(settings['bot']['email'], settings['bot']['pass']);
 }
 
 function extend(target) {
@@ -87,7 +76,7 @@ mybot.on("message", function(message){
 		    helpMsg += Object.keys(util).sort().join(", ")
 		    mybot.sendMessage(message.channel, helpMsg);
 		}else{
-			if(args[0].substring(0, 1) == settings['prefix']){
+			if(args[0].substring(0, settings['prefix'].length) == settings['prefix']){
 				var cmd = args[0].replace(settings['prefix'], "");
 				var index = Object.keys(commands).indexOf(cmd);
 				if(index > -1){
