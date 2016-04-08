@@ -49,22 +49,36 @@ mybot.on("message", function(message){
 	args = message.content.split(" ");
 
 	if(settings['ignored'].indexOf(message.sender.name) <= -1){
-		
-		if(args[0] == settings['prefix']+"help"){
-			if(args.length >= 2){
+
+		if(args[0] == settings['prefix']['main']+"help" || settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">" && args[1] == "help"){
+			if(args.length == 2){
 				var cmd = args[1];
+				if(settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">"){
+					mybot.sendMessage(message.channel, "I'm MackBot! Type "+settings['prefix']['main']+"commands for a list of commands!");
+				}else{
+					var index = Object.keys(commands).indexOf(cmd);
+					if(index > -1){
+						var helpMsg = "__**"+cmd+"**__\n\n";
+						helpMsg += "**Description: **"+commands[cmd].desc+"\n\n";
+						helpMsg += "**Usage: **"+settings['prefix']["main"]+""+commands[cmd].usage;
+
+						mybot.sendMessage(message.channel, helpMsg);
+					}
+				}
+			}else if(args.length >= 3){
+				var cmd = args[2];
 				var index = Object.keys(commands).indexOf(cmd);
 				if(index > -1){
 					var helpMsg = "__**"+cmd+"**__\n\n";
 					helpMsg += "**Description: **"+commands[cmd].desc+"\n\n";
-					helpMsg += "**Usage: **"+settings['prefix']+""+commands[cmd].usage;
+					helpMsg += "**Usage: **"+settings['prefix']["main"]+""+commands[cmd].usage;
 
 					mybot.sendMessage(message.channel, helpMsg);
 				}
 			}else{
-				mybot.sendMessage(message.channel, "I'm MackBot! Type "+settings['prefix']+"commands for a list of commands!");
+				mybot.sendMessage(message.channel, "I'm MackBot! Type "+settings['prefix']['main']+"commands for a list of commands!");
 			}
-		}else if(args[0] == settings['prefix']+"commands"){
+		}else if(args[0] == settings['prefix']['main']+"commands" || settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">" && args[1] == "commands"){
 			var helpMsg = "__**Commands:**__\n\n";
 			helpMsg += "**Defaults: **";
 			helpMsg += Object.keys(defaults).sort().join(", ");
@@ -76,8 +90,17 @@ mybot.on("message", function(message){
 		    helpMsg += Object.keys(util).sort().join(", ")
 		    mybot.sendMessage(message.channel, helpMsg);
 		}else{
-			if(args[0].substring(0, settings['prefix'].length) == settings['prefix']){
-				var cmd = args[0].replace(settings['prefix'], "");
+			if(args[0].substring(0, settings['prefix']['main'].length) == settings['prefix']['main'] || settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">"){
+				var cmd;
+				if(settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">"){
+					cmd = args[1];
+					args = args.splice(1, args.length).join(" ").split(" ");
+				}else{
+					cmd = args[0].replace(settings['prefix']['main'], "");
+				}
+
+				console.dir(args);
+
 				var index = Object.keys(commands).indexOf(cmd);
 				if(index > -1){
 					var now = new Date().valueOf();

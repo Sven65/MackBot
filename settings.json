@@ -9,7 +9,10 @@
 		"email": "",
 		"pass": ""
 	},
-	"prefix": "§",
+	"prefix": {
+		"main": "§",
+		"botname": true
+	},
 	"maxwords": 10,
 	"version": "1.0",
 	"owner": "141610251299454976"

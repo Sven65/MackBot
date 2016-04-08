@@ -4,7 +4,7 @@
   "description": "A discord bot",
   "main": "main.js",
   "author": "Mackan90096 / Sven65",
-  "licence": "Apache-2.0",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/Sven65/MackBot.git"
@@ -16,6 +16,7 @@
   "dependencies": {
     "discord.js": "^6.0.0",
     "entities": "^1.1.1",
+    "mathjs": "^3.1.4",
     "moment": "^2.11.2",
     "request": "^2.69.0",
     "simple-xml2json": "^1.2.3",

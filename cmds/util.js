@@ -4,6 +4,7 @@ var request = require('request');
 var parseString = require('xml2js').parseString;
 var fix = require('entities');
 var os = require("os");
+var mathjs = require("mathjs");
 
 var util = {
 	"8ball": {
@@ -196,8 +197,8 @@ var util = {
 	"roll": {
 		process: function(args, message, bot, settings){
 			if(args.length >= 3){
-				min = Number(message.content.split(" ")[1]);
-				max = Number(message.content.split(" ")[2]);
+				min = Number(args[1]);
+				max = Number(args[2]);
 
 				num = helper.rInt(min, max);
 
@@ -293,7 +294,7 @@ var util = {
 		"usage": "strawpoll `option1`, `option2`, `[option3]`, `...`",
 		"cooldown": 10
 	},
-	"request":{
+	"request": {
 		process: function(args, message, bot, settings){
 			if(args.length >= 2){
 				bot.sendMessage("141610251299454976", "__Requested by "+message.author.username+" on the server **"+message.channel.server.name+"**:__\n"+args.splice(1, args.length).join(" "));
@@ -301,6 +302,28 @@ var util = {
 		},
 		"desc": "Sends a feature request to the maker of this bot.",
 		"usage": "request `feature to request`",
+		"cooldown": 10
+	},
+	"calc": {
+		process: function(args, message, bot, settings){
+			if(args.length >= 2){
+				if(args[1] == "0/0"){
+					bot.sendMessage(message.channel, "Pfft. I'm a bot! I can't calculate 0/0!");
+				}else{
+					var term = args.splice(1, args.length).join(" ");
+					try{
+						var calc = mathjs.eval(term);
+						bot.sendMessage(message.channel, calc);
+					}catch(e){
+						bot.sendMessage(message.channel, "Error! "+e);
+					}
+					
+					
+				}
+			}
+		},
+		"desc": "Calculate math.",
+		"usage": "calc `expression`",
 		"cooldown": 10
 	}
 };
