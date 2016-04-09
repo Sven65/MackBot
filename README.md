@@ -67,7 +67,6 @@ A discord bot
 | `SQRT2` | Returns the square root of 2. | `1.4142135623730951` |
 | `tau` | Tau is the ratio constant of a circle's circumference to radius, equal to `2 * pi`. | `6.283185307179586` |
 | `uninitialized` | Constant used as default value when resizing a matrix to leave new entries uninitialized. |
-| `version` | Returns the version number of math.js. | For example `0.24.1` |
 
 ## Units
 
@@ -147,8 +146,8 @@ A discord bot
 | Function | Description |
 | --- | --- |
 | abs(x) | Calculate the absolute value of a number. |
-| math.cbrt(x [, allRoots]) | Calculate the cubic root of a value. |
-| ceil(x)> | Round a value towards plus infinity If `x` is complex, both real and imaginary part are rounded towards plus infinity. |
+| cbrt(x [, allRoots]) | Calculate the cubic root of a value. |
+| ceil(x) | Round a value towards plus infinity If `x` is complex, both real and imaginary part are rounded towards plus infinity. |
 | cube(x) | Compute the cube of a value, `x * x * x`. |
 | dotDivide(x, y) | Divide two matrices element wise. |
 | dotMultiply(x, y) | Multiply two matrices element wise. |
@@ -170,7 +169,7 @@ A discord bot
 | sqrt(x) | Calculate the square root of a value. |
 | square(x) | Compute the square of a value, `x * x`. |
 | unaryMinus(x) | Inverse the sign of a value, apply a unary minus operation. |
-| math.unaryPlus(x) | Unary plus operation. |
+| unaryPlus(x) | Unary plus operation. |
 | xgcd(a, b) | Calculate the extended greatest common divisor for two values. |
 
 ### Bitwise functions
