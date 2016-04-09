@@ -30,6 +30,7 @@ function init(){
 			lastExecTime[commands[i]] = {};
 		}
 	}
+	loadNSFWChans();
 	mybot.login(settings['bot']['email'], settings['bot']['pass']);
 }
 
@@ -97,6 +98,10 @@ mybot.on("message", function(message){
 		    helpMsg += Object.keys(admin).sort().join(", ")
 		    helpMsg += "\n\n**Util: **";
 		    helpMsg += Object.keys(util).sort().join(", ")
+		    if(nsfwChans.indexOf(message.channel.id) > -1){
+		    	helpMsg += "\n\n**NSFW: **";
+		    helpMsg += Object.keys(nsfw).sort().join(", ")
+		    }
 		    mybot.sendMessage(message.channel, helpMsg);
 		}else if(args[0] == settings['prefix']['main']+"nsfw" || settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">" && args[1] == "nsfw"){
 			if(settings["admins"].indexOf(message.author.id) > -1){

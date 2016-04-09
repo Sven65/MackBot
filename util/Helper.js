@@ -65,6 +65,10 @@ module.exports = {
     var rest = msg.split(' ');
     var removed = rest.splice(0, after);
     return [removed.join(' '), rest.join(' ')];
+  },
+  base: function(str, fromBase, toBase){ // Base conversion
+    var num = parseInt(str, fromBase); // Parse the string into fromBase
+    return num.toString(toBase); // Return the string as new base
   }
 
 };

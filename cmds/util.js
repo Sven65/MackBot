@@ -186,14 +186,6 @@ var util = {
 		"usage": "mal `user`",
 		"cooldown": 10
 	},
-	"ping": {
-		process: function(args, message, bot, settings){
-			bot.reply(message, "Pong!");
-		},
-		"desc": "Pong!",
-		"usage": "ping",
-		"cooldown": 10
-	},
 	"roll": {
 		process: function(args, message, bot, settings){
 			if(args.length >= 3){
@@ -350,7 +342,7 @@ var util = {
 		"desc": "Convert currencies.",
 		"usage": "currency `amount` `from` `to`",
 		"cooldown": 10
-	},
+	}
 };
 
 exports.util = util;

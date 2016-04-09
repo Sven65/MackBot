@@ -111,6 +111,14 @@ var misc = {
 		"desc": "Potato.",
 		"usage": "potato",
 		"cooldown": 10
+	},
+	"dance": {
+		process: function(args, message, bot, settings){
+			bot.sendMessage(message, "*Dances* \\o\\ \\o/ /o/");
+		},
+		"desc": "Dance.",
+		"usage": "dance",
+		"cooldown": 10
 	}
 };
 
