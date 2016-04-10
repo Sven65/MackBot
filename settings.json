@@ -1,5 +1,6 @@
 {
 	"admins": ["141610251299454976"],
+	"adminrole": "MackBot admin",
 	"ignored": [],
 	"mal": {
 		"name": "",
@@ -15,6 +16,6 @@
 		"botname": true
 	},
 	"maxwords": 10,
-	"version": "1.0",
+	"version": "1.1",
 	"owner": "141610251299454976"
 }
