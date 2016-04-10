@@ -7,7 +7,8 @@
 	},
 	"bot": {
 		"email": "",
-		"pass": ""
+		"pass": "",
+		"token": ""
 	},
 	"prefix": {
 		"main": "§",

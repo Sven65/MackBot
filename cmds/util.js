@@ -5,6 +5,16 @@ var parseString = require('xml2js').parseString;
 var fix = require('entities');
 var os = require("os");
 var mathjs = require("mathjs");
+var moment = require("moment");
+var process = require("process");
+
+var giveArray = [];
+var giveStart = false;
+var givechan = "";
+
+String.prototype.capFirst = function(){
+    return this.charAt(0).toUpperCase() + this.slice(1);
+};
 
 var util = {
 	"8ball": {
@@ -222,7 +232,8 @@ var util = {
 	"uptime": {
 		process: function(args, message, bot, settings){
 			up = helper.fTime(os.uptime());
-			bot.sendMessage(message.channel, "Uptime: "+up);
+			botup = helper.fTime(process.uptime());
+			bot.sendMessage(message.channel, "Uptime: "+up+"\nBot uptime: "+botup);
 		},
 		"desc": "The physical servers uptime.",
 		"usage": "uptime",
@@ -341,6 +352,101 @@ var util = {
 		},
 		"desc": "Convert currencies.",
 		"usage": "currency `amount` `from` `to`",
+		"cooldown": 10
+	},
+	"ruser": {
+		process: function(args, message, bot, settings){
+			var gender;
+			if(args.length >= 2){
+				gender = args[1];
+			}else{
+				gender = "";
+			}
+
+			var link = "https://randomuser.me/api/?gender="+gender;
+
+			request(link, function(error, response, body){
+				if(!error && response.statusCode == 200){
+					var result = JSON.parse(body)["results"][0];
+					if(result != undefined){
+
+						var userArr = [];
+
+						userArr.push("__**"+result["name"]["title"].capFirst()+" "+result["name"]["first"].capFirst()+" "+result["name"]["last"].capFirst()+"**__\n\n");
+						userArr.push("**Gender: **"+result['gender']+"\n");
+						userArr.push("**Location: **"+result["location"]['street']+", "+result["location"]['postcode']+", "+result["location"]['city']+", "+result["location"]['state']+"\n");
+						userArr.push("**Birthday: **"+moment.unix(result["dob"]).format("DD/MM/YYYY"));
+
+
+						bot.sendMessage(message.channel, userArr);
+					}else{
+						bot.sendMessage(message.channel, "Whoops. Something went wrong.");
+					}
+				}
+			});
+		},
+		"desc": "Generate a random user profile",
+		"usage": "ruser `[gender]`",
+		"cooldown": 600
+	},
+	"filter": {
+		process: function(args, message, bot, settings){
+			if(args.length >= 2){
+				var term = args.splice(1, args.length).join(" ");
+
+				term = term.replace(/mods/gi, "nazis");
+				term = term.replace(/mod/gi, "hitler");
+				term = term.replace(/witnesses/gi, "these dudes I know");
+				term = term.replace(/witness/gi, "this dude I know");
+				term = term.replace(/allegedly/gi, "kinda probably");
+				term = term.replace(/new study/gi, "tumblr post");
+				term = term.replace(/rebuild/gi, "avenge");
+				term = term.replace(/space/gi, "spaaaace");
+				term = term.replace(/google glass/gi, "virtual boy");
+				term = term.replace(/senator/gi, "elf lord");
+				term = term.replace(/election/gi, "eating contest");
+				term = term.replace(/hacker/gi, "the hacker known as 4chan");
+				term = term.replace(/anime fan/gi, "total fucking weeb");
+				bot.sendMessage(message.channel, term);
+			}
+		},
+		"desc": "Replaces words",
+		"usage": "filter `string`",
+		"cooldown": 10
+	},
+	"giveaway": {
+		process: function(args, message, bot, settings){
+			if(args.length >= 2){
+				var act = args[1];
+				if(act == "start"){
+					if(settings["admins"].indexOf(message.author.id) > -1){
+						if(!giveStart){
+							giveStart = true;
+							giveChan = message.channel.id;
+							bot.sendMessage(message.channel, "Giveaway started! Use ``"+settings["prefix"]["main"]+"giveaway join`` to join!");
+						}
+					}
+				}else if(act == "join" && message.channel.id == giveChan){
+					if(giveArray.indexOf(message.author.id) == -1 && giveStart){
+						giveArray.push(message.author.id);
+					}
+				}else if(act == "stop"){
+					if(settings["admins"].indexOf(message.author.id) > -1){
+						if(giveStart){
+							giveStart = false;
+							bot.sendMessage(message.channel, "Giveaway stopped! The winner is <@"+giveArray[helper.rInt(0, giveArray.length-1)]+">! Congratulations!");
+							giveArray = [];
+						}
+					}
+				}else if(act == "stats"){
+					if(giveStart){
+						bot.sendMessage(message.channel, giveArray.length+" Users in the giveaway. Each user has a "+100/giveArray.length+"% chance of winning.");
+					}
+				}
+			}
+		},
+		"desc": "General giveaway commands",
+		"usage": "giveaway ``start`` or ```join`` or ``stop``",
 		"cooldown": 10
 	}
 };

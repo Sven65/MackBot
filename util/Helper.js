@@ -69,6 +69,16 @@ module.exports = {
   base: function(str, fromBase, toBase){ // Base conversion
     var num = parseInt(str, fromBase); // Parse the string into fromBase
     return num.toString(toBase); // Return the string as new base
-  }
+  },
+  getPropertyByRegex: function(obj,propName){
+   var re = new RegExp("^"+propName+"(\\[\\d*\\])?$");
+   var key;
+   for(key in obj){
+      if (re.test(key)){
+         return obj[key];
+      }
+   }
+   return propName;
+}
 
 };
