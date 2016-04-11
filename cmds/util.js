@@ -7,6 +7,7 @@ var os = require("os");
 var mathjs = require("mathjs");
 var moment = require("moment");
 var process = require("process");
+var cancer = require("../util/Cancer.js");
 
 var giveArray = [];
 var giveStart = false;
@@ -448,6 +449,32 @@ var util = {
 		"desc": "General giveaway commands",
 		"usage": "giveaway ``start`` or ```join`` or ``stop``",
 		"cooldown": 10
+	},
+	"wtfsimfd": {
+		process: function(args, message, bot, settings){
+			request("http://www.whatthefuckshouldimakefordinner.com/index.php", function(error, response, body){
+				if(!error && response.statusCode == 200){
+					var head = body.match(/\<dl\>([^]+?)\<\/dl\>/gmi);
+					if(head != null){
+						var make = head[1].replace(/\n/gmi, "").replace(/\<dl/gmi, "").replace(/dl\>/gmi, "").replace(/\<\//gmi, "").replace(/\<dt\>/gmi, "").replace(/\\/gmi, "").replace(/\<a\>/gmi, "").replace(/\<a/gmi, "").replace(/dt\>/gmi, "");
+						var link = make.match(/\"(.+?)\"/gmi)[0].replace(/\"/gmi, "");
+						var food = fix.decodeHTML(make.match(/\"\>(.+?)\>/gmi)[0].replace(/\"\>/gmi, "").replace(/\</gmi, "").replace(/a\>/gmi, ""));
+						var head2 = head[0].replace(/\n/gmi, "").replace(/\<dl>/gmi, "").replace(/\<\/dl\>/gmi, "");
+						bot.sendMessage(message.channel, "**"+head2+"** "+food+" ("+link+")");
+					}
+				}
+
+			});
+		},
+		"desc": "What the fuck should I make for dinner?",
+		"usage": "wtfsimfd",
+		"cooldown": 10
+	},
+	"cancer": {
+		process: function(args, message, bot, settings){
+			var term = args.splice(1, args.length).join(" ");
+			bot.sendMessage(message.channel, cancer.cancer(term));
+		}
 	}
 };
 

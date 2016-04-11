@@ -1,6 +1,18 @@
 var request = require("request");
 var fs = require("fs");
 
+var helper = require("../util/Helper.js");
+var nsfwChans = require("../data/nsfw.json");
+var ignored = require("../data/ignored.json");
+var toggled = require("../data/toggled.json");
+
+var misc = require("./misc.js").misc;
+var util = require("./util.js").util;
+var nsfw = require("./nsfw.js").nsfw;
+var defaults = require("./defaults.js").defaults;
+
+var commands = helper.extend({}, misc, admin, util, nsfw, defaults);
+
 var admin = {
 	"topic": {
 		process: function(args, message, bot, settings){
@@ -77,8 +89,89 @@ var admin = {
 		"desc": "Sets the bot avatar",
 		"usage": "avatar `Image URL`",
 		"cooldown": 0
-	}
+	},
+	"nsfw": {
+		process: function(args, message, bot, settings){
+			console.log(nsfwChans);
+			if(settings["admins"].indexOf(message.author.id) > -1 || helper.checkRole(message, settings['adminrole'])){
+				var chan = message.channel.id;
+				if(nsfwChans.indexOf(chan) > -1){
+					nsfwChans.splice(nsfwChans.indexOf(chan), 1);
+					fs.writeFile("./data/nsfw.json", JSON.stringify(nsfwChans), 'utf8', function(err){
+						if(err){ throw err; }
+						bot.sendMessage(message.channel, "NSFW Commands disabled for channel.");
+					});
+				}else{
+					nsfwChans.push(chan);
+					fs.writeFile("./data/nsfw.json", JSON.stringify(nsfwChans), 'utf8', function(err){
+						if(err){ throw err; }
+						bot.sendMessage(message.channel, "NSFW Commands enabled for channel.");
+					});
+				}
+			}
+		},
+		"desc": "Toggles NSFW commands",
+		"usage": "nsfw",
+		"cooldown": 10
+	},
+	"ignore": {
+		process: function(args, message, bot, settings){
+			if(settings['owner'] == message.author.id){
+				var toI;
+				if(args.length == 2){
+					toI = args[1].replace(/<@/gmi, "").replace(/>/gmi, "");
+				}
 
+				if(ignored.indexOf(toI) > -1){
+					ignored.splice(ignored.indexOf(toI), 1);
+					fs.writeFile("../data/ignored.json", JSON.stringify(ignored), 'utf8', function(err){
+						if(err){ throw err; }
+					});
+					mybot.sendMessage(message.channel, "No longer ignoring <@"+toI+">");
+				}else{
+					ignored.push(toI);
+					fs.writeFile("../data/ignored.json", JSON.stringify(ignored), 'utf8', function(err){
+						if(err){ throw err; }
+					});
+					mybot.sendMessage(message.channel, "Ignoring <@"+toI+">");
+				}
+			}
+		},
+		"desc": "Ignores users",
+		"usage": "ignore ``user``",
+		"cooldown": 10
+	},
+	"toggle": {
+		process: function(args, message, bot, settings){
+			if(settings["admins"].indexOf(message.author.id) > -1 || helper.checkRole(message, settings['adminrole'])){
+				if(args.length == 2){
+					cmd = args[1];
+					if(Object.keys(commands).indexOf(cmd) > -1){
+						var tgl = toggled[cmd];
+						var id = message.channel.server.id;
+						var index = tgl.indexOf(id);
+
+						if(index > -1){
+							tgl.splice(index, 1);
+							fs.writeFile("./data/toggled.json", JSON.stringify(toggled), 'utf8', function(err){
+								if(err){ throw err; }
+								bot.sendMessage(message.channel, "Command "+cmd+" enabled for server.");
+							});
+						}else{
+							toggled[cmd].push(id);
+							fs.writeFile("./data/toggled.json", JSON.stringify(toggled), 'utf8', function(err){
+								if(err){ throw err; }
+								bot.sendMessage(message.channel, "Command "+cmd+" disabled for server.");
+							});
+						}
+					}
+				}
+			}
+		},
+		"desc": "Toggles commmands",
+		"usage": "toggle ``command``",
+		"cooldown": 10
+	}
 };
 
 exports.admin = admin;

@@ -18,9 +18,9 @@ var nsfw = {
 				if(!error && response.statusCode == 200){
 					var img = body.match(/data-large-file-url=\"(.*)\"/gm);
 					if(img != null){
-						bot.reply(message, "http://danbooru.donmai.us"+img[helper.rInt(0, img.length)].replace(new RegExp(/data-large-file-url=/g), "").replace(new RegExp(/\"/g), ""));
+						bot.sendMessage(message, "http://danbooru.donmai.us"+img[helper.rInt(0, img.length)].replace(new RegExp(/data-large-file-url=/g), "").replace(new RegExp(/\"/g), ""));
 					}else{
-						bot.reply(message, "Couldn't find any images with the tag(s) `"+tag.replace(/_/g, " ")+"`");
+						bot.sendMessage(message, "Couldn't find any images with the tag(s) `"+tag.replace(/_/g, " ")+"`");
 					}
 				}
 			});
@@ -75,9 +75,9 @@ var nsfw = {
 				if(!error && response.statusCode == 200){
 					var img = body.match(/file_url=\"(.*)\"/gm);
 					if(img != null){
-						bot.reply(message, "http:"+img[helper.rInt(0, img.length)].split(" ")[0].replace(/file_url=/g, "").replace(/\"/g, ""));
+						bot.sendMessage(message, "http:"+img[helper.rInt(0, img.length)].split(" ")[0].replace(/file_url=/g, "").replace(/\"/g, ""));
 					}else{
-						bot.reply(message, "Couldn't find any images with the tag(s) `"+tag.replace(/_/g, " ")+"`");
+						bot.sendMessage(message, "Couldn't find any images with the tag(s) `"+tag.replace(/_/g, " ")+"`");
 					}
 				}else{
 					console.dir(error);

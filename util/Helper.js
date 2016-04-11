@@ -79,6 +79,24 @@ module.exports = {
       }
    }
    return propName;
-}
+  },
+  extend: function(target){
+    var sources = [].slice.call(arguments, 1);
+    sources.forEach(function (source){
+        for(var prop in source){
+            target[prop] = source[prop];
+        }
+    });
+    return target;
+  },
+  checkRole: function(message, role){
+    var roles = message.channel.server.rolesOfUser(message.author);
+    for(i=0;i<roles.length;i++){
+      if(roles[i].name == role){
+        return true;
+      }
+    }
+    return false;
+  }
 
 };
