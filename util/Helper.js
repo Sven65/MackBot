@@ -90,13 +90,21 @@ module.exports = {
     return target;
   },
   checkRole: function(message, role){
-    var roles = message.channel.server.rolesOfUser(message.author);
-    for(i=0;i<roles.length;i++){
-      if(roles[i].name == role){
-        return true;
+    if(!message.channel.isPrivate){
+      var roles = message.channel.server.rolesOfUser(message.author);
+      for(i=0;i<roles.length;i++){
+        if(roles[i].name == role){
+          return true;
+        }
       }
+      return false;
+    }else{
+      return false;
     }
-    return false;
+  },
+  getCode: function(){
+    var r = this.rInt(100000000, 999999999);
+    return (r).toString(36).toLowerCase();
   }
 
 };

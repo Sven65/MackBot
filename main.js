@@ -15,9 +15,9 @@ var admin = require("./cmds/admin.js").admin;
 var util = require("./cmds/util.js").util;
 var nsfw = require("./cmds/nsfw.js").nsfw;
 var defaults = require("./cmds/defaults.js").defaults;
+var wolf = require("./cmds/wolf.js").wolf;
 
-
-var commands = extend({}, misc, admin, util, nsfw, defaults);
+var commands = extend({}, misc, admin, util, nsfw, defaults, wolf);
 
 var stdin = process.openStdin();
 
@@ -26,8 +26,6 @@ setInterval(function(){ lastExecTime = {}; },3600000);
 var firstTime = {};
 
 var nsfwChans = [];
-
-var processed = 0;
 
 // Misc functions
 
@@ -44,11 +42,14 @@ function saveIgnore(){
 }
 
 function checkRole(message, role){
-	var roles = message.channel.server.rolesOfUser(message.author);
-	for(i=0;i<roles.length;i++){
-		if(roles[i].name == role){
-			return true;
+	if(!message.channel.isPrivate){
+		var roles = message.channel.server.rolesOfUser(message.author);
+		for(i=0;i<roles.length;i++){
+			if(roles[i].name == role){
+				return true;
+			}
 		}
+		return false;
 	}
 	return false;
 }
@@ -95,57 +96,62 @@ function init(){
 }
 
 mybot.on("message", function(message){
+	try{
+		console.log("["+new Date().toUTCString()+"] [Message] "+message.sender.name+" -> "+message.content);
 
+		args = message.content.split(" ");
 
-	console.log("[Message] "+message.sender.name+" -> "+message.content);
+		if(require("./data/ignored.json").indexOf(message.author.id) == -1){
+			if(args[0] == settings['prefix']['main']+"reload" || settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">" && args[1] == "reload" || settings['prefix']['botname'] && args[0] == mybot.user.name && args[1] == "reload"){
+				if(settings["owner"] == message.author.id){
+					// Delete modules
+					delete require.cache[require.resolve('./cmds/admin.js')];
+					delete require.cache[require.resolve('./cmds/defaults.js')];
+					delete require.cache[require.resolve('./cmds/misc.js')];
+					delete require.cache[require.resolve('./cmds/nsfw.js')];
+					delete require.cache[require.resolve('./cmds/util.js')];
+					delete require.cache[require.resolve('./cmds/wolf.js')];
 
-	args = message.content.split(" ");
+					commands = "";
 
-	if(require("./data/ignored.json").indexOf(message.author.id) == -1){
-		if(args[0].substring(0, settings['prefix']['main'].length) == settings['prefix']['main'] || settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">"){
-			var cmd;
-			if(settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">"){
-				cmd = args[1];
-				args = args.splice(1, args.length).join(" ").split(" ");
-			}else{
-				cmd = args[0].replace(settings['prefix']['main'], "");
-			}
+					// Require modules
 
-			var index = Object.keys(commands).indexOf(cmd);
-			var disabled = 1;
+					misc = "";
+					admin = "";
+					util = "";
+					nsfw = "";
+					defaults = "";
+					wolf = "";
 
-			if(toggled.hasOwnProperty(cmd)){
-				disabled = require("./data/toggled.json")[cmd].indexOf(message.channel.server.id);
-			}
+					misc = require("./cmds/misc.js").misc;
+					admin = require("./cmds/admin.js").admin;
+					util = require("./cmds/util.js").util;
+					nsfw = require("./cmds/nsfw.js").nsfw;
+					defaults = require("./cmds/defaults.js").defaults;
+					wolf = require("./cmds/wolf.js").wolf;
 
-			if(index > -1 && disabled == -1){
-				if(!commands[cmd].nsfw){
-					var now = new Date().valueOf();
-					if(!lastExecTime.hasOwnProperty(cmd)){
-						lastExecTime[cmd] = {};
-					}
+					commands = extend({}, misc, admin, util, nsfw, defaults, wolf);
 
-					if(!lastExecTime[cmd].hasOwnProperty(message.author.id)){
-						lastExecTime[cmd][message.author.id] = new Date().valueOf();
-					}
-
-
-					if(settings["admins"].indexOf(message.author.id) == -1 && !checkRole(message, settings['adminrole'])){
-						if(now < lastExecTime[cmd][message.author.id] + (commands[cmd].cooldown * 1000) && firstTime[cmd].hasOwnProperty(message.author.id)){
-							mybot.sendMessage(message, message.author.username.replace(/@/g, '@\u200b') + ", you need to *cooldown* (" + Math.round(((lastExecTime[cmd][message.author.id] + commands[cmd].cooldown * 1000) - now) / 1000) + " seconds)", function(e, m){ mybot.deleteMessage(m, {"wait": 6000}); });
-							if (!message.channel.isPrivate) mybot.deleteMessage(message, {"wait": 10000});
-							return;
-						}else{
-							commands[cmd].process(args, message, mybot, settings);
-							lastExecTime[cmd][message.author.id] = now;
-							firstTime[cmd][message.author.id] = true;
-						}
-					}else{
-						commands[cmd].process(args, message, mybot, settings);
-					}
-
+					mybot.sendMessage(message.channel, "Reloaded all modules");
+				}
+			}else if(args[0].substring(0, settings['prefix']['main'].length) == settings['prefix']['main'] || settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">" || settings['prefix']['botname'] && args[0] == mybot.user.name){
+				var cmd;
+				if(settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">" || settings['prefix']['botname'] && args[0] == mybot.user.name){
+					cmd = args[1].toLowerCase();
+					args = args.splice(1, args.length).join(" ").split(" ");
 				}else{
-					if(nsfwChans.indexOf(message.channel.id) > -1 || message.channel.isPrivate){
+					cmd = args[0].replace(settings['prefix']['main'], "").toLowerCase();
+				}
+
+				var index = Object.keys(commands).indexOf(cmd);
+				var disabled = -1;
+
+				if(toggled.hasOwnProperty(cmd) && !message.channel.isPrivate){
+					disabled = require("./data/toggled.json")[cmd].indexOf(message.channel.server.id);
+				}
+
+				if(index > -1 && disabled == -1){
+					if(!commands[cmd].nsfw){
 						var now = new Date().valueOf();
 						if(!lastExecTime.hasOwnProperty(cmd)){
 							lastExecTime[cmd] = {};
@@ -155,22 +161,51 @@ mybot.on("message", function(message){
 							lastExecTime[cmd][message.author.id] = new Date().valueOf();
 						}
 
-						if(settings["admins"].indexOf(message.author.id) == -1 && !checkRole(message, settings['adminrole'])){
-							if(now < lastExecTime[cmd][message.author.id] + (commands[cmd].cooldown * 1000)){
+
+						if(settings["admins"].indexOf(message.author.id) == -1 && !message.channel.isPrivate && !checkRole(message, settings['adminrole'])){
+							if(now < lastExecTime[cmd][message.author.id] + (commands[cmd].cooldown * 1000) && firstTime[cmd].hasOwnProperty(message.author.id)){
 								mybot.sendMessage(message, message.author.username.replace(/@/g, '@\u200b') + ", you need to *cooldown* (" + Math.round(((lastExecTime[cmd][message.author.id] + commands[cmd].cooldown * 1000) - now) / 1000) + " seconds)", function(e, m){ mybot.deleteMessage(m, {"wait": 6000}); });
-								if(!message.channel.isPrivate) mybot.deleteMessage(message, {"wait": 10000});
+								if (!message.channel.isPrivate) mybot.deleteMessage(message, {"wait": 10000});
 								return;
 							}else{
 								commands[cmd].process(args, message, mybot, settings);
 								lastExecTime[cmd][message.author.id] = now;
+								firstTime[cmd][message.author.id] = true;
 							}
 						}else{
 							commands[cmd].process(args, message, mybot, settings);
+						}
+
+					}else{
+						if(nsfwChans.indexOf(message.channel.id) > -1 || message.channel.isPrivate){
+							var now = new Date().valueOf();
+							if(!lastExecTime.hasOwnProperty(cmd)){
+								lastExecTime[cmd] = {};
+							}
+
+							if(!lastExecTime[cmd].hasOwnProperty(message.author.id)){
+								lastExecTime[cmd][message.author.id] = new Date().valueOf();
+							}
+
+							if(settings["admins"].indexOf(message.author.id) == -1 && !checkRole(message, settings['adminrole'])){
+								if(now < lastExecTime[cmd][message.author.id] + (commands[cmd].cooldown * 1000)){
+									mybot.sendMessage(message, message.author.username.replace(/@/g, '@\u200b') + ", you need to *cooldown* (" + Math.round(((lastExecTime[cmd][message.author.id] + commands[cmd].cooldown * 1000) - now) / 1000) + " seconds)", function(e, m){ mybot.deleteMessage(m, {"wait": 6000}); });
+									if(!message.channel.isPrivate) mybot.deleteMessage(message, {"wait": 10000});
+									return;
+								}else{
+									commands[cmd].process(args, message, mybot, settings);
+									lastExecTime[cmd][message.author.id] = now;
+								}
+							}else{
+								commands[cmd].process(args, message, mybot, settings);
+							}
 						}
 					}
 				}
 			}
 		}
+	}catch(e){
+    	console.log(chalk.red(e.stack));
 	}
 });
 
@@ -194,8 +229,4 @@ mybot.on("serverCreated", function(server){
 
 stdin.addListener("data", function(d) {
     mybot.sendMessage(mybot.channels[0], d.toString().trim());
-});
-
-process.on('uncaughtException', function(err){
-  console.log("Caught exception: "+err.stack);
 });

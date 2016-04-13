@@ -8,6 +8,8 @@ var mathjs = require("mathjs");
 var moment = require("moment");
 var process = require("process");
 var cancer = require("../util/Cancer.js");
+var qr = require('node-qr-image');
+var images = require("../data/images.json");
 
 var giveArray = [];
 var giveStart = false;
@@ -90,7 +92,7 @@ var util = {
 								synopsis = synopsis.replace(/\[(b|\/b)\]/g, "**");
 								synopsis = fix.decodeHTML(synopsis);
 								if(synopsis.length > 1000){synopsis = synopsis.substring(0, 1000); synopsis += "...";}
-								animeArray.push("__**" + result.anime.entry[0].title + "**__ - __**" + result.anime.entry[0].english + "**__ • *" + result.anime.entry[0].start_date + "*  to *" + result.anime.entry[0].end_date + "*\n");
+								animeArray.push("__**" + result.anime.entry[0].title + "**__ - __**" + result.anime.entry[0].english +" - ["+result.anime.entry[0].status[0]+"] "+ "**__ • *" + result.anime.entry[0].start_date + "*  to *" + result.anime.entry[0].end_date + "*\n");
 								animeArray.push("**Type:** *" + result.anime.entry[0].type + "*  **Episodes:** *" + result.anime.entry[0].episodes + "*  **Score:** *" + result.anime.entry[0].score + "*");
 								animeArray.push(synopsis);
 								bot.sendMessage(message.channel, animeArray);
@@ -271,7 +273,7 @@ var util = {
 	},
 	"strawpoll": {
 		process: function(args, message, bot, settings){
-			if(args.length >= 3){
+			if(args.length >= 4){
 
 				var options = message.cleanContent.substring(message.cleanContent.indexOf(" ")+1).split(/, ?/);
 
@@ -280,8 +282,8 @@ var util = {
 						"headers": {"content-type": "application/json"},
 						"json": true,
 						body: {
-							"title": "" + message.author.username + "'s Poll",
-							"options": options
+							"title": "" + options[0],
+							"options": options.splice(1, options.length)
 						}
 					}, function(error, response, body){
 						if(!error && response.statusCode == 201){
@@ -295,7 +297,7 @@ var util = {
 			}
 		},
 		"desc": "Create a strawpoll.",
-		"usage": "strawpoll `option1`, `option2`, `[option3]`, `...`",
+		"usage": "strawpoll `question`, `option1`, `option2`, `[option3]`, `...`",
 		"cooldown": 10
 	},
 	"request": {
@@ -474,7 +476,72 @@ var util = {
 		process: function(args, message, bot, settings){
 			var term = args.splice(1, args.length).join(" ");
 			bot.sendMessage(message.channel, cancer.cancer(term));
-		}
+		},
+		"desc": "Cancerifies a string",
+		"usage": "cancer ``string``",
+		"cooldown": 10
+	},
+	"qr": {
+		process: function(args, message, bot, settings){
+			if(args.length >= 2){
+				var term = args.splice(1, args.length).join(" ");
+				var qrcode = qr.imageSync(term, { type: 'png' });
+				
+				bot.sendFile(message.channel, qrcode);
+			}
+		},
+		"desc": "Generates a QR code",
+		"usage": "qr ``string``",
+		"cooldown": 10
+	},
+	"simage": {
+		process: function(args, message, bot, settings){
+			if(args.length >= 3){
+				var url = args[1];
+				var name = args[2];
+				var ext = url.split('.').pop();
+				var intName = helper.rInt(100000000, 999999999).toString(36).toLowerCase()+"."+ext;
+				if(images.hasOwnProperty(name)){
+					bot.sendMessage(message.channel, "Image ``"+name+"`` already exists.");
+					return;
+				}
+				request.head(url, function(err, res, body){
+					request(url).pipe(fs.createWriteStream("./data/images/"+intName)).on('close', function(){
+						images[name] = intName;
+						fs.writeFile("./data/images.json", JSON.stringify(images), 'utf8', function(err){
+							if(err){ throw err; }
+							bot.sendMessage(message.channel, "Saved image: "+name);
+						});
+					});
+				});
+			}
+		},
+		"desc": "Saves an image",
+		"usage": "simage ``url`` ``name``",
+		"cooldown": 10
+	},
+	"image": {
+		process: function(args, message, bot, settings){
+			if(args.length >= 2){
+				var file = args[1];
+				if(images.hasOwnProperty(file)){
+					bot.sendFile(message.channel, "./data/images/"+images[file]);
+				}else{
+					bot.sendMessage(message.channel, "No such image.");
+				}
+			}
+		},
+		"desc": "Shows an image",
+		"usage": "image ``image``",
+		"cooldown": 10
+	},
+	"imagelist": {
+		process: function(args, message, bot, settings){
+			bot.sendMessage(message.channel, Object.keys(images).sort().join(", "));
+		},
+		"desc": "Lists available images",
+		"usage": "imagelist",
+		"cooldown": 10
 	}
 };
 

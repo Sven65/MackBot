@@ -48,9 +48,9 @@ var admin = {
 			if(admin == message.author.id){
 				if(args.length >= 2){
 					try{
-						bot.sendMessage(message.channel, eval(args.splice(1, args.length).join(" ")));
+						bot.sendMessage(message.channel, "```js\n"+eval(args.splice(1, args.length).join(" "))+"```");
 					}catch(e){
-						bot.sendMessage(message.channel, e);
+						bot.sendMessage(message.channel, "```js\n"+e+"```");
 					}
 				}
 			}
@@ -171,7 +171,36 @@ var admin = {
 		"desc": "Toggles commmands",
 		"usage": "toggle ``command``",
 		"cooldown": 10
+	},
+	"clean": {
+		process: function(args, message, bot, settings){
+			if(settings["admins"].indexOf(message.author.id) > -1){
+				var toDelete = 25;
+
+				bot.getChannelLogs(message.channel, 250, function(error, messages){
+					if(args.length >= 2){
+						toDelete = Number(args[1]);
+					}
+					var dones = 0;
+					for(i= 0;i<=100;i++){
+						if(toDelete <= 0){
+							bot.sendMessage(message, "Deleted **" + dones + "** messages in " + message.channel + ".");
+							return;
+						}
+
+						if(messages[i].author.id == bot.user.id){
+							bot.deleteMessage(messages[i]);
+							dones++;
+							toDelete--;
+						}
+					}
+				});
+			}
+		},
+		"desc": "Cleans bot messages",
+		"usage": "clean ``[amount]``",
+		"cooldown": 10
 	}
-};
+}
 
 exports.admin = admin;

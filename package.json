@@ -19,6 +19,8 @@
     "entities": "^1.1.1",
     "mathjs": "^3.1.4",
     "moment": "^2.11.2",
+    "moment-timezone": "^0.5.3",
+    "node-qr-image": "0.0.1",
     "request": "^2.69.0",
     "simple-xml2json": "^1.2.3",
     "xml2js": "^0.4.16"

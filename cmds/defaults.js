@@ -4,8 +4,9 @@ var misc = require("./misc.js").misc;
 var admin = require("./admin.js").admin;
 var util = require("./util.js").util;
 var nsfw = require("./nsfw.js").nsfw;
+var wolf = require("./wolf.js").wolf;
 
-var commands = helper.extend({}, misc, admin, util, nsfw, defaults);
+var commands = helper.extend({}, misc, admin, util, nsfw, defaults, wolf);
 var nsfwChans = require("../data/nsfw.json");
 
 var defaults = {
@@ -14,7 +15,7 @@ var defaults = {
 			var owner = bot.users.get("id", settings["owner"]).name;
 			var denot = ["css", "fix", "diff", "xl"];
 
-			bot.sendMessage(message.channel, "```"+denot[helper.rInt(0, denot.length)]+"\nMackBot Version "+settings["version"]+"\nPrefix: "+settings["prefix"]["main"]+"\nUsing: discord.js\nOwner: "+owner+"\nBot uptime: "+helper.fTime(process.uptime())+"\nConnected to "+bot.servers.length+" servers and "+bot.channels.length+" channels"+"\nMore info: https://github.com/Sven65/MackBot```");
+			bot.sendMessage(message.channel, "```"+denot[helper.rInt(0, denot.length-1)]+"\nMackBot Version "+settings["version"]+"\nPrefix: "+settings["prefix"]["main"]+"\nUsing: discord.js\nOwner: "+owner+"\nBot uptime: "+helper.fTime(process.uptime())+"\nConnected to "+bot.servers.length+" servers and "+bot.channels.length+" channels"+"\nTotal users: "+bot.users.length+"\nUsing "+(Math.round(process.memoryUsage().rss / 1024 / 1000))+"MB of memory\nMore info: https://github.com/Sven65/MackBot```");
 		},
 		"desc": "Bot info",
 		"usage": "info",
@@ -23,7 +24,11 @@ var defaults = {
 	"ping": {
 		process: function(args, message, bot, settings){
 			var start = Date.now();
-			bot.reply(message, "Pong! (Time taken "+(start-message.timestamp)/1000+" seconds)");
+			var time = message.timestamp-start;
+			if(time < 0){
+				time *= -1;
+			}
+			bot.reply(message, "Pong! (Time taken "+time/1000+" seconds)");
 		},
 		"desc": "Pong!",
 		"usage": "ping",
@@ -32,7 +37,11 @@ var defaults = {
 	"pong": {
 		process: function(args, message, bot, settings){
 			var start = Date.now();
-			bot.reply(message, "Ping! (Time taken "+(start-message.timestamp)/1000+" seconds)");
+			var time = message.timestamp-start;
+			if(time < 0){
+				time *= -1;
+			}
+			bot.reply(message, "Ping! (Time taken "+time/1000+" seconds)");
 		},
 		"desc": "Ping!",
 		"usage": "pong",

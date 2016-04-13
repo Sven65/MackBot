@@ -1,2 +1,0 @@
-Hotload modules
-Make bot resume after crash/error
