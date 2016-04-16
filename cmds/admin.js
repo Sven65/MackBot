@@ -124,16 +124,16 @@ var admin = {
 
 				if(ignored.indexOf(toI) > -1){
 					ignored.splice(ignored.indexOf(toI), 1);
-					fs.writeFile("../data/ignored.json", JSON.stringify(ignored), 'utf8', function(err){
+					fs.writeFile("./data/ignored.json", JSON.stringify(ignored), 'utf8', function(err){
 						if(err){ throw err; }
 					});
-					mybot.sendMessage(message.channel, "No longer ignoring <@"+toI+">");
+					bot.sendMessage(message.channel, "No longer ignoring <@"+toI+">");
 				}else{
 					ignored.push(toI);
-					fs.writeFile("../data/ignored.json", JSON.stringify(ignored), 'utf8', function(err){
+					fs.writeFile("./data/ignored.json", JSON.stringify(ignored), 'utf8', function(err){
 						if(err){ throw err; }
 					});
-					mybot.sendMessage(message.channel, "Ignoring <@"+toI+">");
+					bot.sendMessage(message.channel, "Ignoring <@"+toI+">");
 				}
 			}
 		},

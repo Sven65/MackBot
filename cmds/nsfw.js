@@ -89,6 +89,29 @@ var nsfw = {
 		"usage": "rule34 `[tags]`",
 		"cooldown": 10,
 		"nsfw": true
+	},
+	"boobs": {
+		process: function(args, message, bot, settings){
+			var link = "http://api.oboobs.ru/boobs/"+helper.rInt(0,9380);
+			console.log(link);
+			request(link, function(error, response, body){
+				console.log(body);
+				if(!error && response.statusCode == 200){
+					if(JSON.parse(body)){
+						var x = JSON.parse(body);
+						var img = "http://media.oboobs.ru/"+x[0]["preview"];
+						bot.sendMessage(message.channel, img);
+					}
+					
+				}else{
+					bot.sendMessage(message.channel, "```js\nERROR\n"+error+"\nResponse: "+response.statusCode+"```");
+				}
+			});
+		},
+		"desc": "Booooobssss",
+		"usage": "boobs",
+		"cooldown": 10,
+		"nsfw": true
 	}
 };
 

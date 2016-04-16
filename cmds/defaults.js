@@ -5,8 +5,9 @@ var admin = require("./admin.js").admin;
 var util = require("./util.js").util;
 var nsfw = require("./nsfw.js").nsfw;
 var wolf = require("./wolf.js").wolf;
+var games = require("./games.js").games;
 
-var commands = helper.extend({}, misc, admin, util, nsfw, defaults, wolf);
+var commands = helper.extend({}, misc, admin, util, nsfw, defaults, wolf, games);
 var nsfwChans = require("../data/nsfw.json");
 
 var defaults = {
@@ -68,7 +69,11 @@ var defaults = {
 					bot.sendMessage(message.channel, helpMsg);
 				}
 			}else{
-				bot.sendMessage(message.channel, "Hi! I'm MackBot! Type ``"+settings['prefix']['main']+"commands`` for a list of the commands I recognize!");
+				var msg = "Hi! I'm MackBot! For a list of the commands I recognize, you can type ``"+settings['prefix']['main']+"commands``";
+				if(settings["prefix"]["botname"]){
+					msg += ", ``"+bot.user.name+" commands`` or <@"+bot.user.id+"> commands";
+				}
+				bot.sendMessage(message.channel, msg);
 			}
 		},
 		"desc": "Shows help message",
@@ -77,19 +82,72 @@ var defaults = {
 	},
 	"commands": {
 		process: function(args, message, bot, settings){
-			console.log(admin);
+			var toggled = require("../data/toggled.json");
+
+			var def = Object.keys(defaults).sort();
+			var mis = Object.keys(misc).sort();
+			var adm = Object.keys(require("./admin.js").admin).sort();
+			var uti = Object.keys(util).sort();
+			var nsf = Object.keys(nsfw).sort();
+			var gam = Object.keys(games).sort();
+
+
+			for(i=0;i<def.length;i++){
+				var cmd = def[i];
+				if(toggled[cmd].indexOf(message.channel.server.id) > -1){
+					def.splice(i, 1);
+				}
+			}
+
+			for(i=0;i<mis.length;i++){
+				var cmd = mis[i];
+				if(toggled[cmd].indexOf(message.channel.server.id) > -1){
+					mis.splice(i, 1);
+				}
+			}
+
+			for(i=0;i<adm.length;i++){
+				var cmd = adm[i];
+				if(toggled[cmd].indexOf(message.channel.server.id) > -1){
+					adm.splice(i, 1);
+				}
+			}
+
+			for(i=0;i<uti.length;i++){
+				var cmd = uti[i];
+				if(toggled[cmd].indexOf(message.channel.server.id) > -1){
+					uti.splice(i, 1);
+				}
+			}
+
+			for(i=0;i<nsf.length;i++){
+				var cmd = nsf[i];
+				if(toggled[cmd].indexOf(message.channel.server.id) > -1){
+					nsf.splice(i, 1);
+				}
+			}
+
+			for(i=0;i<gam.length;i++){
+				var cmd = gam[i];
+				if(toggled[cmd].indexOf(message.channel.server.id) > -1){
+					gam.splice(i, 1);
+				}
+			}
+
 			var helpMsg = "__**Commands:**__\n\n";
 			helpMsg += "**Defaults: **";
-			helpMsg += Object.keys(defaults).sort().join(", ");
+			helpMsg += def.sort().join(", ");
 		    helpMsg += "\n\n**Misc: **";
-		    helpMsg += Object.keys(misc).sort().join(", ")
+		    helpMsg += mis.sort().join(", ");
 		    helpMsg += "\n\n**Admin: **";
-		    helpMsg += Object.keys(require("./admin.js").admin).sort().join(", ")
+		    helpMsg += adm.sort().join(", ");
 		    helpMsg += "\n\n**Util: **";
-		    helpMsg += Object.keys(util).sort().join(", ")
+		    helpMsg += uti.sort().join(", ");
+		    helpMsg += "\n\n**Games: **";
+		    helpMsg += gam.sort().join(", ");
 		    if(nsfwChans.indexOf(message.channel.id) > -1){
 		    	helpMsg += "\n\n**NSFW: **";
-		    	helpMsg += Object.keys(nsfw).sort().join(", ")
+		    	helpMsg += nsf.sort().join(", ")
 		    }
 		    bot.sendMessage(message.channel, helpMsg);
 		},

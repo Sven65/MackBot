@@ -10,6 +10,7 @@ var process = require("process");
 var cancer = require("../util/Cancer.js");
 var qr = require('node-qr-image');
 var images = require("../data/images.json");
+var tags = require("../data/tags.json");
 
 var giveArray = [];
 var giveStart = false;
@@ -319,9 +320,9 @@ var util = {
 					var term = args.splice(1, args.length).join(" ");
 					try{
 						var calc = mathjs.eval(term);
-						bot.sendMessage(message.channel, calc);
+						bot.sendMessage(message.channel, "```js\n"+calc+"```");
 					}catch(e){
-						bot.sendMessage(message.channel, "Error! "+e);
+						bot.sendMessage(message.channel, "Error! ```js\n"+e+"```");
 					}
 					
 					
@@ -535,6 +536,26 @@ var util = {
 		"usage": "image ``image``",
 		"cooldown": 10
 	},
+	"delimage": {
+		process: function(args, message, bot, settings){
+			if(args.length >= 2 && settings["owner"] == message.author.id){
+				var file = args[1];
+				if(images.hasOwnProperty(file)){
+					fs.unlink("./data/images/"+images[file], function(err){
+						if(err){ throw err; }
+						delete images[file];
+						fs.writeFile("./data/images.json", JSON.stringify(images), 'utf8', function(err){
+							if(err){ throw err; }
+							bot.sendMessage(message.channel, "Removed image: "+file);
+						});
+					});
+				}
+			}
+		},
+		"desc": "Deletes an image",
+		"usage": "delimage ``image``",
+		"cooldown": 10
+	},
 	"imagelist": {
 		process: function(args, message, bot, settings){
 			bot.sendMessage(message.channel, Object.keys(images).sort().join(", "));
@@ -542,7 +563,106 @@ var util = {
 		"desc": "Lists available images",
 		"usage": "imagelist",
 		"cooldown": 10
-	}
+	},
+	"stag": {
+		process: function(args, message, bot, settings){
+			if(args.length >= 3){
+				var tag = args[1];
+				var content = args.splice(2, args.length).join(" ");
+				if(tags.hasOwnProperty(tag)){
+					bot.updateMessage(message, "``Tag "+tag+" already exists.``");
+					return;
+				}
+				tags[tag] = content;
+				fs.writeFile("./data/tags.json", JSON.stringify(tags), 'utf8', function(err){
+					if(err){ throw err; }
+					bot.sendMessage(message.channel, "``Saved tag: "+tag+"``");
+				});
+			}
+		},
+		"desc": "Saves a tag",
+		"usage": "stag ``name`` ``content``",
+		"cooldown": 10
+	},
+	"tag": {
+		process: function(args, message, bot, settings){
+			if(args.length >= 2){
+				var tag = args[1];
+				if(tags.hasOwnProperty(tag)){
+					bot.sendMessage(message.channel, tags[tag])
+				}
+			}
+		},
+		"desc": "Prints a tag",
+		"usage": "tag ``tag``",
+		"cooldown": 10
+	},
+	"taglist": {
+		process: function(args, message, bot, settings){
+			bot.sendMessage(message.channel, Object.keys(tags).sort().join(", "));
+		},
+		"desc": "Lists available tags",
+		"usage": "taglist",
+		"cooldown": 10
+	},
+	"deltag": {
+		process: function(args, message, bot, settings){
+			if(args.length >= 2 && settings["owner"] == message.author.id){
+				var tag = args[1];
+				if(tags.hasOwnProperty(tag)){
+					delete tags[tag];
+					fs.writeFile("./data/tags.json", JSON.stringify(tags), 'utf8', function(err){
+						if(err){ throw err; }
+						bot.sendMessage(message.channel, "Removed tag: "+name);
+					});
+				}
+			}
+		},
+		"desc": "Deletes an image",
+		"usage": "delimage ``image``",
+		"cooldown": 10
+	},
+	"reddit": {
+		process: function(args, message, bot, settings){
+			console.log(args);
+			if(args.length >= 2){
+				sub = args[1];
+				request("https://reddit.com/r/"+sub+"/.json", function(err, res, body){
+                    if(!err && res.statusCode == 200){
+                        body = JSON.parse(body);
+                        if(body.hasOwnProperty("error")){
+                            bot.sendMessage(message.channel, "Error! "+body["error"])
+                        }else{
+                            if(body["data"]["children"][0]["data"]["over_18"] == true){
+                                if(require("../data/nsfw.json").indexOf(message.channel.id)){
+                                	var post = body["data"]["children"][helper.rInt(1, body["data"]["children"].length)]["data"];
+                                	console.dir(post);
+                                	if(post["is_self"]){
+                                		bot.sendMessage(message.channel, "http://reddit.com"+post["permalink"]);
+                                	}else{
+                                    	bot.sendMessage(message.channel, post["url"]);
+                                    }
+                                }else{
+                                    bot.sendMessage(message.channel, "Sorry. This subreddit is only for users over 18.");
+                                }
+                            }else{
+                            	var post = body["data"]["children"][helper.rInt(1, body["data"]["children"].length)]["data"];
+                            	console.dir(post);
+                            	if(post["is_self"]){
+                            		bot.sendMessage(message.channel, "http://reddit.com"+post["permalink"]);
+                            	}else{
+                                	bot.sendMessage(message.channel, post["url"]);
+                                }
+                            }
+                        }
+               		}
+                });
+			}
+		},
+		"desc": "Fetches a random reddit post",
+		"usage": "reddit ``sub``",
+		"cooldown": 10
+	},
 };
 
 exports.util = util;

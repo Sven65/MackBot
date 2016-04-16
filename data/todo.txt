@@ -1,0 +1,15 @@
+Add games and shit
+
+https://github.com/sussman/ircbot-collection/blob/master/wolfbot.py
+
+mega c220200@trbvn.com
+
+Fix
+
+WOLF:
+
+Alive shows userIDs
+night/day message(s) goes before game
+alive shows dead players
+
+BOT:
