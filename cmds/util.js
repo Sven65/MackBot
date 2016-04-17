@@ -11,6 +11,9 @@ var cancer = require("../util/Cancer.js");
 var qr = require('node-qr-image');
 var images = require("../data/images.json");
 var tags = require("../data/tags.json");
+var useful = require('useful-module');
+var settings = require("../settings.json");
+var todo = require("../data/todo.json");
 
 var giveArray = [];
 var giveStart = false;
@@ -22,7 +25,7 @@ String.prototype.capFirst = function(){
 
 var util = {
 	"8ball": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var reply = ["It is certain", "It is decidedly so",
 				"Without a doubt", "Yes, definitely", 
 				"You may rely on it", "As I see it, yes", 
@@ -44,7 +47,7 @@ var util = {
 		"cooldown": 10
 	},
 	"addword": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 
 			if(args.length >= 2){
 				fs.readFile('words.txt', 'utf8', function(err, data){
@@ -71,7 +74,7 @@ var util = {
 		"cooldown": 10
 	},
 	"anime": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 
 			if(args.length >= 2){
 				
@@ -107,7 +110,7 @@ var util = {
 		"cooldown": 10
 	},
 	"define": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2){
 				var term = args.splice(1, args.length).join("+");
 				request('http://api.urbandictionary.com/v0/define?term='+term, function(error, response, body){
@@ -156,7 +159,7 @@ var util = {
 		"cooldown": 10
 	},
 	"hug": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var usr = "";
 
 			if(args.length >= 2){
@@ -175,7 +178,7 @@ var util = {
 		"cooldown": 10
 	},
 	"mal": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2){
 				request('http://myanimelist.net/malappinfo.php?u='+args[1]+'&status=all&type=anime', function (error, response, body) {
 				  if (!error && response.statusCode == 200){
@@ -201,7 +204,7 @@ var util = {
 		"cooldown": 10
 	},
 	"roll": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 3){
 				min = Number(args[1]);
 				max = Number(args[2]);
@@ -218,7 +221,7 @@ var util = {
 		"cooldown": 10
 	},
 	"slap": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var usr = "";
 
 			if(args.length >= 2){
@@ -234,7 +237,7 @@ var util = {
 		"cooldown": 10
 	},
 	"uptime": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			up = helper.fTime(os.uptime());
 			botup = helper.fTime(process.uptime());
 			bot.sendMessage(message.channel, "Uptime: "+up+"\nBot uptime: "+botup);
@@ -244,7 +247,7 @@ var util = {
 		"cooldown": 10
 	},
 	"words": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var words = [];
 			var word = "";
 
@@ -273,7 +276,7 @@ var util = {
 		"cooldown": 10
 	},
 	"strawpoll": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 4){
 
 				var options = message.cleanContent.substring(message.cleanContent.indexOf(" ")+1).split(/, ?/);
@@ -302,7 +305,7 @@ var util = {
 		"cooldown": 10
 	},
 	"request": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2){
 				bot.sendMessage("141610251299454976", "__Requested by "+message.author.username+" on the server **"+message.channel.server.name+"**:__\n"+args.splice(1, args.length).join(" "));
 			}
@@ -312,7 +315,7 @@ var util = {
 		"cooldown": 10
 	},
 	"calc": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2){
 				if(args[1] == "0/0"){
 					bot.sendMessage(message.channel, "Pfft. I'm a bot! I can't calculate 0/0!");
@@ -334,7 +337,7 @@ var util = {
 		"cooldown": 10
 	},
 	"currency": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 4){
 				var amt = args[1];
 				var from = args[2].toUpperCase();
@@ -359,7 +362,7 @@ var util = {
 		"cooldown": 10
 	},
 	"ruser": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var gender;
 			if(args.length >= 2){
 				gender = args[1];
@@ -394,7 +397,7 @@ var util = {
 		"cooldown": 600
 	},
 	"filter": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2){
 				var term = args.splice(1, args.length).join(" ");
 
@@ -419,7 +422,7 @@ var util = {
 		"cooldown": 10
 	},
 	"giveaway": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2){
 				var act = args[1];
 				if(act == "start"){
@@ -454,7 +457,7 @@ var util = {
 		"cooldown": 10
 	},
 	"wtfsimfd": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			request("http://www.whatthefuckshouldimakefordinner.com/index.php", function(error, response, body){
 				if(!error && response.statusCode == 200){
 					var head = body.match(/\<dl\>([^]+?)\<\/dl\>/gmi);
@@ -474,7 +477,7 @@ var util = {
 		"cooldown": 10
 	},
 	"cancer": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var term = args.splice(1, args.length).join(" ");
 			bot.sendMessage(message.channel, cancer.cancer(term));
 		},
@@ -483,7 +486,7 @@ var util = {
 		"cooldown": 10
 	},
 	"qr": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2){
 				var term = args.splice(1, args.length).join(" ");
 				var qrcode = qr.imageSync(term, { type: 'png' });
@@ -496,7 +499,7 @@ var util = {
 		"cooldown": 10
 	},
 	"simage": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 3){
 				var url = args[1];
 				var name = args[2];
@@ -522,7 +525,7 @@ var util = {
 		"cooldown": 10
 	},
 	"image": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2){
 				var file = args[1];
 				if(images.hasOwnProperty(file)){
@@ -537,7 +540,7 @@ var util = {
 		"cooldown": 10
 	},
 	"delimage": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2 && settings["owner"] == message.author.id){
 				var file = args[1];
 				if(images.hasOwnProperty(file)){
@@ -557,7 +560,7 @@ var util = {
 		"cooldown": 10
 	},
 	"imagelist": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message.channel, Object.keys(images).sort().join(", "));
 		},
 		"desc": "Lists available images",
@@ -565,7 +568,7 @@ var util = {
 		"cooldown": 10
 	},
 	"stag": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 3){
 				var tag = args[1];
 				var content = args.splice(2, args.length).join(" ");
@@ -585,7 +588,7 @@ var util = {
 		"cooldown": 10
 	},
 	"tag": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2){
 				var tag = args[1];
 				if(tags.hasOwnProperty(tag)){
@@ -598,7 +601,7 @@ var util = {
 		"cooldown": 10
 	},
 	"taglist": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message.channel, Object.keys(tags).sort().join(", "));
 		},
 		"desc": "Lists available tags",
@@ -606,7 +609,7 @@ var util = {
 		"cooldown": 10
 	},
 	"deltag": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2 && settings["owner"] == message.author.id){
 				var tag = args[1];
 				if(tags.hasOwnProperty(tag)){
@@ -623,7 +626,7 @@ var util = {
 		"cooldown": 10
 	},
 	"reddit": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			console.log(args);
 			if(args.length >= 2){
 				sub = args[1];
@@ -663,6 +666,78 @@ var util = {
 		"usage": "reddit ``sub``",
 		"cooldown": 10
 	},
+	"guid": {
+		process: function(args, message, bot){
+			bot.sendMessage(message.channel, "```js\n"+useful.guid()+"```");
+		},
+		"desc": "Generates a GUID",
+		"usage": "guid",
+		"cooldown": 10
+	},
+	"tadd":  {
+		process: function(args, message, bot){
+			if(args.length >= 2){
+				var data = args.splice(1, args.length-1).join(" ");
+				if(!todo.hasOwnProperty(message.author.id)){
+					todo[message.author.id] = {};
+				}
+				todo[message.author.id][useful.guid()] = {"done": false, "data": data};
+				fs.writeFile("./data/todo.json", JSON.stringify(todo), 'utf8', function(err){
+					if(err){ throw err; }
+					bot.sendMessage(message.channel, "``Added todo for "+message.author.name+"``");
+				});
+			}
+		},
+		"desc": "Add to your todo list",
+		"usage": "tadd ``data``",
+		"cooldown": 10
+	},
+	"todo": {
+		process: function(args, message, bot){
+			if(todo.hasOwnProperty(message.author.id)){
+				var list = todo[message.author.id];
+				var itms = Object.keys(list);
+				if(itms.length > 0){
+					var msg = [];
+					msg.push("**"+message.author.name+"'s todo list**");
+					for(i=0;i<itms.length;i++){
+						if(list[itms[i]]["done"]){
+							msg.push("~~"+list[itms[i]]["data"]+"~~");
+						}else{
+							msg.push(list[itms[i]]["data"]);
+						}
+					}
+					bot.sendMessage(message.channel, msg);
+				}else{
+					bot.sendMessage(message.channel, "Hey! "+message.author.name+", You don't have anything on your todo list");
+				}
+			}else{
+				bot.sendMessage(message.channel, "Hey! "+message.author.name+", You don't have anything on your todo list");
+			}
+		}
+	},
+	"tdone": {
+		process: function(args, message, bot){
+			if(args.length >= 2){
+				if(todo.hasOwnProperty(message.author.id)){
+					var list = todo[message.author.id];
+					var itms = Object.keys(list);
+					var item = Number(args[1]);
+
+					if(item <= itms.length){
+						todo[message.author.id][itms[item]]["done"] = true;
+						fs.writeFile("./data/todo.json", JSON.stringify(todo), 'utf8', function(err){
+							if(err){ throw err; }
+							bot.sendMessage(message.channel, "``Set item to done for "+message.author.name+"``");
+						});
+					}
+				}
+			}
+		},
+		"desc": "Set an item to done.",
+		"usage": "tdone ``item number``",
+		"cooldown": 10
+	}
 };
 
 exports.util = util;

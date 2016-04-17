@@ -6,13 +6,15 @@ var util = require("./util.js").util;
 var nsfw = require("./nsfw.js").nsfw;
 var wolf = require("./wolf.js").wolf;
 var games = require("./games.js").games;
+var profiles = require("./profiles.js").profiles;
+var settings = require("../settings.json");
 
-var commands = helper.extend({}, misc, admin, util, nsfw, defaults, wolf, games);
+var commands = helper.extend({}, misc, admin, util, nsfw, defaults, wolf, games, profiles);
 var nsfwChans = require("../data/nsfw.json");
 
 var defaults = {
 	"info": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var owner = bot.users.get("id", settings["owner"]).name;
 			var denot = ["css", "fix", "diff", "xl"];
 
@@ -23,7 +25,7 @@ var defaults = {
 		"cooldown": 10
 	},
 	"ping": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var start = Date.now();
 			var time = message.timestamp-start;
 			if(time < 0){
@@ -36,7 +38,7 @@ var defaults = {
 		"cooldown": 10
 	},
 	"pong": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var start = Date.now();
 			var time = message.timestamp-start;
 			if(time < 0){
@@ -49,7 +51,7 @@ var defaults = {
 		"cooldown": 10
 	},
 	"invite": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message.channel, "Click here to add me to your server! https://discordapp.com/oauth2/authorize?&client_id=168330106224246784&scope=bot&permissions=0");	
 		},
 		"desc": "Sends a invite link",
@@ -57,7 +59,7 @@ var defaults = {
 		"cooldown": 10
 	},
 	"help": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2){
 				var cmd = args[1];
 				var index = Object.keys(commands).indexOf(cmd);
@@ -81,7 +83,7 @@ var defaults = {
 		"cooldown": 10
 	},
 	"commands": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var toggled = require("../data/toggled.json");
 
 			var def = Object.keys(defaults).sort();
@@ -90,7 +92,7 @@ var defaults = {
 			var uti = Object.keys(util).sort();
 			var nsf = Object.keys(nsfw).sort();
 			var gam = Object.keys(games).sort();
-
+			var prof = Object.keys(profiles).sort();
 
 			for(i=0;i<def.length;i++){
 				var cmd = def[i];
@@ -134,6 +136,13 @@ var defaults = {
 				}
 			}
 
+			for(i=0;i<prof.length;i++){
+				var cmd = prof[i];
+				if(toggled[cmd].indexOf(message.channel.server.id) > -1){
+					prof.splice(i, 1);
+				}
+			}
+
 			var helpMsg = "__**Commands:**__\n\n";
 			helpMsg += "**Defaults: **";
 			helpMsg += def.sort().join(", ");
@@ -145,6 +154,8 @@ var defaults = {
 		    helpMsg += uti.sort().join(", ");
 		    helpMsg += "\n\n**Games: **";
 		    helpMsg += gam.sort().join(", ");
+		    helpMsg += "\n\n**Profiles: **";
+		    helpMsg += prof.sort().join(", ");
 		    if(nsfwChans.indexOf(message.channel.id) > -1){
 		    	helpMsg += "\n\n**NSFW: **";
 		    	helpMsg += nsf.sort().join(", ")

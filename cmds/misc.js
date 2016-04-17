@@ -4,7 +4,7 @@ var helper = require("../util/Helper.js");
 
 var misc = {
 	"15": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message.channel, "15 15 15 15 15 15 15 15 15 15 15");
 		},
 		"desc": "Prints 15",
@@ -12,7 +12,7 @@ var misc = {
 		"cooldown": 10
 	},
 	"cat": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			request('http://thecatapi.com/api/images/get?format=xml&results_per_page=1', function(error, response, body){
 				if(!error && response.statusCode == 200){
 				    var data = parser.parser(body);
@@ -25,7 +25,7 @@ var misc = {
 		"cooldown": 10
 	},
 	"cri": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message.channel, "*cris evritim*");
 		},
 		"desc": "Cri",
@@ -33,7 +33,7 @@ var misc = {
 		"cooldown": 10
 	},
 	"fuck": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message.channel, "Wow...dont fucking say fuck you fucking fucktard dont fucking make me fucking come over there and fuck you (fucking metaphorically of course) Thats right, dont fucking fuck with the fucking fucker");
 		},
 		"desc": "Fuuuuckkkk",
@@ -41,7 +41,7 @@ var misc = {
 		"cooldown": 10
 	},
 	"hue": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message.channel, "huehuhuehuehuehuhuehuhuehuhuehuhuehuhuehuhuehuhuehuhuehu");
 		},
 		"desc": "hue",
@@ -49,7 +49,7 @@ var misc = {
 		"cooldown": 10
 	},
 	"lenny": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message.channel, "( ͡° ͜ʖ ͡°)");
 		},
 		"desc": "( ͡° ͜ʖ ͡°)",
@@ -57,7 +57,7 @@ var misc = {
 		"cooldown": 10
 	},
 	"lod": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message.channel, "ಠ_ಠ");
 		},
 		"desc": "ಠ_ಠ",
@@ -65,7 +65,7 @@ var misc = {
 		"cooldown": 10
 	},
 	"meme": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			request('http://infinigag.k3min.eu/meme', function(error, response, body){
 				if(!error && response.statusCode == 200){
 				    var memes = JSON.parse(body)["data"];
@@ -81,7 +81,7 @@ var misc = {
 		"cooldown": 10
 	},
 	"no": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message.channel, "http://i2.kym-cdn.com/entries/icons/original/000/007/423/untitle.JPG");
 		},
 		"desc": "No.",
@@ -89,7 +89,7 @@ var misc = {
 		"cooldown": 10
 	},
 	"pana": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message.channel, "Pana is orange master.");
 		},
 		"desc": "Orange",
@@ -97,7 +97,7 @@ var misc = {
 		"cooldown": 10
 	},
 	"pink": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message.channel, "Mirelle Nutella Adele Pinkie Chrysalis Islandmountain Glitterhead The 15th is the pinkest girl ever");
 		},
 		"desc": "Pink",
@@ -105,7 +105,7 @@ var misc = {
 		"cooldown": 10
 	},
 	"potato": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message.channel, "POTATO");
 		},
 		"desc": "Potato.",
@@ -113,7 +113,7 @@ var misc = {
 		"cooldown": 10
 	},
 	"dance": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			bot.sendMessage(message, "*Dances* \\o\\ \\o/ /o/");
 		},
 		"desc": "Dance.",

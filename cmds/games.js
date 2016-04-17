@@ -23,7 +23,7 @@ function shuffle(array){
 
 var games = {
 	"ginfo": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var msg = "```js\n";
 			var usr;
 			if(users.hasOwnProperty(message.author.id)){
@@ -46,7 +46,7 @@ var games = {
 		"cooldown": 10
 	},
 	"groll": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var amt = 1;
 			if(args.length >= 2){
 				var amt = Number(args[1]);
@@ -93,7 +93,7 @@ var games = {
 		"cooldown": 10
 	},
 	"gslots": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var amt = 1;
 			if(args.length >= 2){
 				amt = Number(args[1]);
@@ -188,7 +188,7 @@ var games = {
 		"cooldown": 10
 	},
 	"gcoins": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(settings["owner"] == message.author.id){
 				if(args.length >= 3){
 					var to = message.mentions[0].id;

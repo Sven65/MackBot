@@ -5,6 +5,7 @@ var helper = require("../util/Helper.js");
 var nsfwChans = require("../data/nsfw.json");
 var ignored = require("../data/ignored.json");
 var toggled = require("../data/toggled.json");
+var settings = require("../settings.json");
 
 var misc = require("./misc.js").misc;
 var util = require("./util.js").util;
@@ -15,7 +16,7 @@ var commands = helper.extend({}, misc, admin, util, nsfw, defaults);
 
 var admin = {
 	"topic": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var admins = settings["admins"];
 			if(admins.indexOf(message.author.id) > -1){
 				if(args.length >= 2){
@@ -30,7 +31,7 @@ var admin = {
 		"cooldown": 0
 	},
 	"status": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var admins = settings["admins"];
 			if(admins.indexOf(message.author.id) > -1){
 				if(args.length >= 2){
@@ -43,7 +44,7 @@ var admin = {
 		"cooldown": 0
 	},
 	"eval": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var admin = settings["owner"];
 			if(admin == message.author.id){
 				if(args.length >= 2){
@@ -60,7 +61,7 @@ var admin = {
 		"cooldown": 0
 	},
 	"avatar": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2){
 				var owner = settings["owner"];
 				if(message.author.id == owner){
@@ -91,7 +92,7 @@ var admin = {
 		"cooldown": 0
 	},
 	"nsfw": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			console.log(nsfwChans);
 			if(settings["admins"].indexOf(message.author.id) > -1 || helper.checkRole(message, settings['adminrole'])){
 				var chan = message.channel.id;
@@ -115,7 +116,7 @@ var admin = {
 		"cooldown": 10
 	},
 	"ignore": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(settings['owner'] == message.author.id){
 				var toI;
 				if(args.length == 2){
@@ -142,7 +143,7 @@ var admin = {
 		"cooldown": 10
 	},
 	"toggle": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(settings["admins"].indexOf(message.author.id) > -1 || helper.checkRole(message, settings['adminrole'])){
 				if(args.length == 2){
 					cmd = args[1];
@@ -173,7 +174,7 @@ var admin = {
 		"cooldown": 10
 	},
 	"clean": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(settings["admins"].indexOf(message.author.id) > -1){
 				var toDelete = 25;
 

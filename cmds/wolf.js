@@ -346,7 +346,7 @@ function check_night_done(){
 
 var wolf = {
 	"wolf": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			if(args.length >= 2){
 				var act = args[1];
 				if(act == "join" && gameState == 0){

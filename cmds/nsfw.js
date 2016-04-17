@@ -1,9 +1,10 @@
 var helper = require("../util/Helper.js");
 var request = require('request');
+var settings = require("../settings.json");
 
 var nsfw = {
 	"hentai": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var tag;
 			if(args.length >= 2){
 				tag = args.splice(1, args.length).join("_").replace(new RegExp(/loli/g), "flat_chest");
@@ -31,7 +32,7 @@ var nsfw = {
 		"nsfw": true
 	},
 	"e621": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var tag;
 			if(args.length >= 2){
 				tag = args.splice(1, args.length).join("+");
@@ -61,7 +62,7 @@ var nsfw = {
 		"nsfw": true
 	},
 	"rule34": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var tag;
 			if(args.length >= 2){
 				tag = args.splice(1, args.length).join("_");
@@ -91,9 +92,8 @@ var nsfw = {
 		"nsfw": true
 	},
 	"boobs": {
-		process: function(args, message, bot, settings){
+		process: function(args, message, bot){
 			var link = "http://api.oboobs.ru/boobs/"+helper.rInt(0,9380);
-			console.log(link);
 			request(link, function(error, response, body){
 				console.log(body);
 				if(!error && response.statusCode == 200){
@@ -112,7 +112,31 @@ var nsfw = {
 		"usage": "boobs",
 		"cooldown": 10,
 		"nsfw": true
-	}
+	},
+	"butt": {
+		process: function(args, message, bot){
+			var link = "http://api.obutts.ru/butts/"+helper.rInt(0,3500);
+			console.log(link);
+			request(link, function(error, response, body){
+				console.log(body);
+				if(!error && response.statusCode == 200){
+					try{
+						var x = JSON.parse(body);
+						var img = "http://media.obutts.ru/"+x[0]["preview"];
+						bot.sendMessage(message.channel, img);
+					}catch(e){
+						bot.sendMessage(message.channel, "```js\n"+e+"```");
+					}
+				}else{
+					bot.sendMessage(message.channel, "```js\nERROR\n"+error+"\nResponse: "+response.statusCode+"```");
+				}
+			});
+		},
+		"desc": "Butts :D",
+		"usage": "butt",
+		"cooldown": 10,
+		"nsfw": true
+	},
 };
 
 exports.nsfw = nsfw;

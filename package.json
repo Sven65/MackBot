@@ -23,6 +23,7 @@
     "node-qr-image": "0.0.1",
     "request": "^2.69.0",
     "simple-xml2json": "^1.2.3",
+    "useful-module": "0.0.6",
     "xml2js": "^0.4.16"
   }
 }

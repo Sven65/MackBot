@@ -2,6 +2,7 @@ var Discord = require("discord.js");
 var fs = require("fs");
 var moment = require("moment");
 var chalk = require('chalk');
+var path = require("path");
 
 var mybot = new Discord.Client();
 
@@ -9,20 +10,19 @@ var settings = require("./settings.json");
 var toggled = require("./data/toggled.json");
 var nsfwChans = require("./data/nsfw.json");
 var ignored = require("./data/ignored.json");
+var commands = {};
 
-var misc = require("./cmds/misc.js").misc;
-var admin = require("./cmds/admin.js").admin;
-var util = require("./cmds/util.js").util;
-var nsfw = require("./cmds/nsfw.js").nsfw;
-var defaults = require("./cmds/defaults.js").defaults;
-var wolf = require("./cmds/wolf.js").wolf;
-var games = require("./cmds/games.js").games;
+var normalizedPath = path.join(__dirname, "cmds");
 
-var commands = extend({}, misc, admin, util, nsfw, defaults, wolf, games);
+fs.readdirSync(normalizedPath).forEach(function(file){
+	commands = extend({}, commands, require("./cmds/"+file)[file.replace(".js", "")]);
+});
 
 var stdin = process.openStdin();
 
 var lastExecTime = {};
+var used = [];
+var cmdI = [];
 setInterval(function(){ lastExecTime = {}; },3600000);
 var firstTime = {};
 
@@ -74,10 +74,13 @@ function extend(target) {
 
 function init(){
 	var now = new Date().valueOf();
-	for(i=0;i<Object.keys(commands).length;i++){
-		firstTime[Object.keys(commands)[i]] = {};
-		if(!toggled.hasOwnProperty(Object.keys(commands)[i])){
-			toggled[Object.keys(commands)[i]] = [];
+	var cmds = Object.keys(commands);
+
+	for(i=0;i<cmds.length;i++){
+		var cmd = cmds[i];
+		firstTime[cmd] = {};
+		if(!toggled.hasOwnProperty(cmd)){
+			toggled[cmd] = [];
 		}
 	}
 	saveToggle();
@@ -96,6 +99,15 @@ function init(){
 	}
 }
 
+function cmdUsed(cmd){
+	if(cmdI.indexOf(cmd) > -1){
+		used[cmdI.indexOf(cmd)]++;
+	}else{
+		cmdI.push(cmd);
+		used.push(1);
+	}
+}
+
 mybot.on("message", function(message){
 	try{
 		console.log("["+new Date().toUTCString()+"] [Message] "+message.sender.name+" -> "+message.content);
@@ -103,52 +115,51 @@ mybot.on("message", function(message){
 		args = message.content.split(" ");
 
 		if(require("./data/ignored.json").indexOf(message.author.id) == -1){
-			if(args[0] == settings['prefix']['main']+"reload" || settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">" && args[1] == "reload" || settings['prefix']['botname'] && args[0].toLowerCase() == mybot.user.name.toLowerCase() && args[1] == "reload"){
+			if(args[0].toLowerCase() == settings['prefix']['main']+"reload" || settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">" && args[1].toLowerCase() == "reload" || settings['prefix']['botname'] && args[0].toLowerCase() == mybot.user.name.toLowerCase() && args[1].toLowerCase() == "reload"){
 				if(settings["owner"] == message.author.id){
-					// Delete modules
-					delete require.cache[require.resolve('./cmds/admin.js')];
-					delete require.cache[require.resolve('./cmds/defaults.js')];
-					delete require.cache[require.resolve('./cmds/misc.js')];
-					delete require.cache[require.resolve('./cmds/nsfw.js')];
-					delete require.cache[require.resolve('./cmds/util.js')];
-					delete require.cache[require.resolve('./cmds/wolf.js')];
-					delete require.cache[require.resolve('./cmds/games.js')];
+					try{
 
-					commands = {};
+						commands = {};
 
-					// Require modules
+						fs.readdirSync(normalizedPath).forEach(function(file){
+							delete require.cache[require.resolve("./cmds/"+file)];
+							commands = extend({}, commands, require("./cmds/"+file)[file.replace(".js", "")]);
+						});
 
-					misc = "";
-					admin = "";
-					util = "";
-					nsfw = "";
-					defaults = "";
-					wolf = "";
-					games = "";
-
-					misc = require("./cmds/misc.js").misc;
-					admin = require("./cmds/admin.js").admin;
-					util = require("./cmds/util.js").util;
-					nsfw = require("./cmds/nsfw.js").nsfw;
-					defaults = require("./cmds/defaults.js").defaults;
-					wolf = require("./cmds/wolf.js").wolf;
-					games = require("./cmds/games.js").games;
-
-					commands = extend({}, misc, admin, util, nsfw, defaults, wolf, games);
-
-					for(i=0;i<Object.keys(commands).length;i++){
-						firstTime[Object.keys(commands)[i]] = {};
-						if(!toggled.hasOwnProperty(Object.keys(commands)[i])){
-							toggled[Object.keys(commands)[i]] = [];
+						for(i=0;i<Object.keys(commands).length;i++){
+							firstTime[Object.keys(commands)[i]] = {};
+							if(!toggled.hasOwnProperty(Object.keys(commands)[i])){
+								toggled[Object.keys(commands)[i]] = [];
+							}
 						}
+
+						saveToggle();
+
+						mybot.sendMessage(message.channel, "Reloaded all modules");
+					}catch(e){
+						mybot.sendMessage(message.channel, "```js\n"+e+"```");
+					}
+				}
+			}else if(args[0].toLowerCase() == settings['prefix']['main']+"stats" || settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">" && args[1].toLowerCase() == "stats" || settings['prefix']['botname'] && args[0].toLowerCase() == mybot.user.name.toLowerCase() && args[1].toLowerCase() == "stats"){
+				if(settings["owner"] == message.author.id){
+
+					var stats = [];
+
+					var cmdUsage = 0;
+
+					for(i=0;i<used.length;i++){
+						cmdUsage += used[i];
 					}
 
-					saveToggle();
+					console.log(cmdUsage);
 
-					mybot.sendMessage(message.channel, "Reloaded all modules");
+					stats.push("```js\nTotal Command Usage: "+cmdUsage+"("+(cmdUsage/(Math.round(mybot.uptime / 60000))).toFixed(2)+"/minute)```");
+					mybot.sendMessage(message.channel, stats);
+
 				}
 			}else if(args[0].substring(0, settings['prefix']['main'].length) == settings['prefix']['main'] || settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">" || settings['prefix']['botname'] && args[0].toLowerCase() == mybot.user.name.toLowerCase()){
 				var cmd;
+				
 				if(settings['prefix']['botname'] && args[0] == "<@"+mybot.user.id+">" || settings['prefix']['botname'] && args[0].toLowerCase() == mybot.user.name.toLowerCase()){
 					cmd = args[1].toLowerCase();
 					args = args.splice(1, args.length).join(" ").split(" ");
@@ -164,6 +175,7 @@ mybot.on("message", function(message){
 				}
 
 				if(index > -1 && disabled == -1){
+					cmdUsed(cmd);
 					if(!commands[cmd].nsfw){
 						var now = new Date().valueOf();
 						if(!lastExecTime.hasOwnProperty(cmd)){
@@ -181,12 +193,12 @@ mybot.on("message", function(message){
 								if (!message.channel.isPrivate) mybot.deleteMessage(message, {"wait": 10000});
 								return;
 							}else{
-								commands[cmd].process(args, message, mybot, settings);
+								commands[cmd].process(args, message, mybot);
 								lastExecTime[cmd][message.author.id] = now;
 								firstTime[cmd][message.author.id] = true;
 							}
 						}else{
-							commands[cmd].process(args, message, mybot, settings);
+							commands[cmd].process(args, message, mybot);
 						}
 
 					}else{
@@ -207,11 +219,11 @@ mybot.on("message", function(message){
 									if(!message.channel.isPrivate) mybot.deleteMessage(message, {"wait": 10000});
 									return;
 								}else{
-									commands[cmd].process(args, message, mybot, settings);
+									commands[cmd].process(args, message, mybot);
 									lastExecTime[cmd][message.author.id] = now;
 								}
 							}else{
-								commands[cmd].process(args, message, mybot, settings);
+								commands[cmd].process(args, message, mybot);
 							}
 						}
 					}
