@@ -8,7 +8,7 @@ const SendError = require(`${__dirname}/utils/SendError.js`);
 
 global.Server = require(`${__dirname}/utils/server/index.js`);
 global.User = require(`${__dirname}/utils/user/index.js`);
-
+global.Words = require(`${__dirname}/utils/words/index.js`);
 
 let Commands = {
 	All: [],

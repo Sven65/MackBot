@@ -39,3 +39,13 @@ Array.prototype.shuffle = function(){
 Array.prototype.random = function(){
 	return this[Math.floor(Math.random() * ((this.length-1) - 0 + 1)) + 0];
 }
+
+Array.prototype.caseIndex = function(query){
+	let index = -1;
+	this.some((element, i) => {
+		if(query === element.toLowerCase()){
+			index = i;
+		}
+	});
+	return index;
+}
