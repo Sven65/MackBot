@@ -16,8 +16,8 @@ module.exports = {
 						let helpMsg = `__**${Command.capFirst()}**__\n\n`;
 						helpMsg += MackBot.Commands.List[MackBot.Commands.Map[Command]][Command].Description+"\n\n";
 
-						helpMsg += `**Usage: **\`${prefix}${Command.capFirst()}\` ${MackBot.Commands.List[MackBot.Commands.Map[Command]][Command].usage}\n\n`;
-						helpMsg += `**Cooldown: ** ${MackBot.Commands.List[MackBot.Commands.Map[Command]][Command].cooldown.formatNumber()} seconds.`;
+						helpMsg += `**Usage: **\`${prefix}${Command.capFirst()}\` ${MackBot.Commands.List[MackBot.Commands.Map[Command]][Command].Usage}\n\n`;
+						helpMsg += `**Cooldown: ** ${MackBot.Commands.List[MackBot.Commands.Map[Command]][Command].Cooldown.formatNumber()} seconds.`;
 						if(MackBot.Commands.List[MackBot.Commands.Map[Command]][Command].hasOwnProperty("Extra")){
 							for(let Extra in MackBot.Commands.List[MackBot.Commands.Map[Command]][Command].Extra){
 								helpMsg += "\n";
@@ -52,16 +52,16 @@ module.exports = {
 									"author": {
 										"name": `${Command.capFirst()}`
 									},
-									"description": cmd.desc,
+									"description": cmd.Description,
 									"fields": [
 										{
 											"name": "Usage",
-											"value": `${prefix}${Command} ${cmd.usage}`,
+											"value": `${prefix}${Command} ${cmd.Usage}`,
 											"inline": true
 										},
 										{
 											"name": "Cooldown",
-											"value": `${cmd.cooldown.formatNumber()} Seconds`,
+											"value": `${cmd.Cooldown.formatNumber()} Seconds`,
 											"inline": true
 										}
 									]

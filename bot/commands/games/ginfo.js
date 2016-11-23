@@ -9,11 +9,11 @@ module.exports = {
 				stats = {bal: 100, wins: 0, losses: 0, games: 0};
 			}
 
-			msg += `User: ${message.author.username}`;
-			msg += `\nBalance: ${stats.bal.formatNumber()} coins`;
-			msg += `\nWins/Losses: ${stats.wins.formatNumber()}/${stats.losses.formatNumber()}`;
-			msg += `\nGames played: ${stats.games.formatNumber()}`;
-			msg += "```";
+			Msg += `User: ${message.author.username}`;
+			Msg += `\nBalance: ${stats.bal.formatNumber()} coins`;
+			Msg += `\nWins/Losses: ${stats.wins.formatNumber()}/${stats.losses.formatNumber()}`;
+			Msg += `\nGames played: ${stats.games.formatNumber()}`;
+			Msg += "```";
 
 			let embedPerms = false;
 
@@ -26,7 +26,7 @@ module.exports = {
 			}
 
 			if(!embedPerms){
-				message.channel.sendMessage(msg);
+				message.channel.sendMessage(Msg);
 			}else{
 				let DataMessage = {
 					"embed": {

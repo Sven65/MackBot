@@ -9,8 +9,8 @@ module.exports = {
 						message.channel.sendMessage(`:x: User doesn't have a gambling profile.`);
 						return;
 					}else{
-						userGame.addCoins(parseInt(Args[2])).then(() => {
-							message.channel.sendMessage(`:white_check_mark: Gave ${message.mentions.users.first().username} ${parseInt(Args[2])} Coins.`);
+						userGame.addCoins(parseInt(Args[1])).then(() => {
+							message.channel.sendMessage(`:white_check_mark: Gave ${message.mentions.users.first().username} ${parseInt(Args[1])} Coins.`);
 						});
 					}
 				})
