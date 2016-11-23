@@ -58,7 +58,8 @@ module.exports = {
 									"type": "rich",
 									"color": 0xf44274,
 									"author": {
-										"name": `${Anime.title}`
+										"name": `${Anime.title}`,
+										"url": `https://myanimelist.net/anime/${Anime.id}`
 									},
 									"fields": [
 										{
@@ -128,5 +129,8 @@ module.exports = {
 		}else{
 			message.channel.sendMessage(`:x: Not enough arguments, ${message.author.username}`);
 		}
-	}
+	},
+	Description: "Shows info about an anime",
+	Usage: "`<anime>`",
+	Cooldown: 15
 }
