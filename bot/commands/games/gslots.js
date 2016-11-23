@@ -96,14 +96,22 @@ module.exports = {
 						userGame.addWin().then(() => {
 							userGame.addCoins(win).then(() => {
 								message.channel.sendMessage(`${Rolled}\n\n:moneybag: You won ${win.formatNumber()} coins!`);
+							}).catch((e) => {
+								MackBot.sendError(message, e);
 							});
+						}).catch((e) => {
+							MackBot.sendError(message, e);
 						});
 					}
+				}).catch((e) => {
+					MackBot.sendError(message, e);
 				});
-
+			}).catch((e) => {
+				MackBot.sendError(message, e);
 			});
-
-		})
+		}).catch((e) => {
+			MackBot.sendError(message, e);
+		});
 	},
 	Description: "Spins the slots! Three in a row in the middle gives a win!",
 	Usage: "`[Amount]`",

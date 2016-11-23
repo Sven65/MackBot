@@ -85,6 +85,8 @@ module.exports = {
 					message.channel.sendMessage('', DataMessage);
 				}
 			}
+		}).catch((e) => {
+			MackBot.sendError(message, e);
 		});
 	},
 	Description: "Shows a users profile",

@@ -87,8 +87,8 @@ module.exports = {
 							}
 
 							message.channel.sendMessage('', embed).catch((e) => {
-								Common.sendError(message, e);
-							});	
+								MackBot.sendError(message, e);
+							});
 						}
 					}
 				}else{
@@ -100,9 +100,11 @@ module.exports = {
 					message.channel.sendMessage(msg);
 				}
 			}catch(e){
-				console.log(e);
+				MackBot.sendError(message, e);
 			}
-		});
+		}).catch((e) => {
+			MackBot.sendError(message, e);
+		})
 	},
 	desc: "Shows the help message",
 	usage: "`[command]`",

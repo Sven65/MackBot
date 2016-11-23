@@ -46,14 +46,23 @@ module.exports = {
 						userGame.addWin().then(() => {
 							userGame.addCoins(win).then(() => {
 								message.channel.sendMessage(`${Rolled}\n\n:moneybag: You won ${win.formatNumber()} coins!`);
+							}).catch((e) => {
+								MackBot.sendError(message, e);
 							});
+						}).catch((e) => {
+							MackBot.sendError(message, e);
 						});
 					}
+				}).catch((e) => {
+					MackBot.sendError(message, e);
 				});
 
+			}).catch((e) => {
+				MackBot.sendError(message, e);
 			});
-
-		})
+		}).catch((e) => {
+			MackBot.sendError(message, e);
+		});
 	},
 	Description: "Rolls the dice!",
 	Usage: "`[Amount]`",

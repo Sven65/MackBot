@@ -11,9 +11,13 @@ module.exports = {
 					}else{
 						userGame.addCoins(parseInt(Args[1])).then(() => {
 							message.channel.sendMessage(`:white_check_mark: Gave ${message.mentions.users.first().username} ${parseInt(Args[1])} Coins.`);
-						});
+						}).catch((e) => {
+							MackBot.sendError(message, e);
+						})
 					}
-				})
+				}).catch((e) => {
+					MackBot.sendError(message, e);
+				});
 			}
 		}
 	},

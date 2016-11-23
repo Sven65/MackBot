@@ -11,15 +11,17 @@ module.exports = {
 								Guild.toggleOff(command).then(() => {
 									message.channel.sendMessage(`:white_check_mark: Command \`${Command}\` turned on for server.`);
 								}).catch((e) => {
-									message.channel.sendMessage(`:x: Something went wrong.`);
+									MackBot.sendError(message, e);
 								});
 							}else{
 								Guild.toggleOn(command).then(() => {
 									message.channel.sendMessage(`:white_check_mark: Command \`${Command}\` turned off for server.`);
 								}).catch((e) => {
-									message.channel.sendMessage(`:x: Something went wrong.`);
+									MackBot.sendError(message, e);
 								});
 							}
+						}).catch((e) => {
+							MackBot.sendError(message, e);
 						});
 					}
 				}else{

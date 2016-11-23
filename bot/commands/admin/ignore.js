@@ -8,13 +8,13 @@ module.exports = {
 						user.unignore().then(() => {
 							message.channel.sendMessage(`:white_check_mark: No longer ignoring ${message.mentions.users.first().username}.`);
 						}).catch((e) => {
-							message.channel.sendMessage(`:x: Something went wrong.`);
+							MackBot.sendError(message, e);
 						});
 					}else{
 						user.ignore().then(() => {
 							message.channel.sendMessage(`:white_check_mark: Now ignoring ${message.mentions.users.first().username}.`);
 						}).catch((e) => {
-							message.channel.sendMessage(`:x: Something went wrong.`);
+							MackBot.sendError(message, e);
 						});
 					}
 				});
