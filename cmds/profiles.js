@@ -14,18 +14,18 @@ var profile = {
 	"profile": {
 		process: function(args, message, bot){
 			var user = message.author.id;
-			var name = message.author.name;
+			var name = message.author.username;
 			var pic = message.author.avatarURL;
-			if(message.mentions.length > 0){
-				if(message.mentions[0].id != bot.user.id){
-					user = message.mentions[0].id;
-					name = message.mentions[0].name;
-					pic = message.mentions[0].avatarURL;
+			if(message.mentions.users.size > 0){
+				if(message.mentions.users[0].id != bot.user.id){
+					user = message.mentions.users[0].id;
+					name = message.mentions.users[0].username;
+					pic = message.mentions.users[0].avatarURL;
 				}else{
-					if(message.mentions.length >= 1){
-						user = message.mentions[1].id;
-						name = message.mentions[1].name;
-						pic = message.mentions[1].avatarURL;
+					if(message.mentions.users.size >= 1){
+						user = message.mentions.users[1].id;
+						name = message.mentions.users[1].username;
+						pic = message.mentions.users[1].avatarURL;
 					}
 				}
 			}
@@ -33,7 +33,7 @@ var profile = {
 			
 
 			if(!profiles.hasOwnProperty(user)){
-				bot.sendMessage(message.channel, name+" has no profile!");
+				message.channel.sendMessage(name+" has no profile!");
 				return;
 			}
 
@@ -52,15 +52,10 @@ var profile = {
 
 			msg += "```";
 			
-			bot.sendMessage(message.channel, msg);
+			message.channel.sendMessage(msg);
 
 			if(pic != null){
-				var ext = pic.split('.').pop();
-				request.head(pic, function(err, res, body){
-					request(pic).pipe(fs.createWriteStream("./data/images/profile."+ext)).on('close', function(){
-						bot.sendFile(message.channel, "./data/images/profile."+ext);
-					});
-				});
+				message.channel.sendMessage(pic);
 			}
 
 		},
@@ -72,7 +67,7 @@ var profile = {
 		process: function(args, message, bot){
 			var user = message.author.id;
 			if(profiles.hasOwnProperty(user)){
-				bot.sendMessage(message.channel, "Hey! "+message.author.name+", You already have a profile!");
+				message.channel.sendMessage("Hey! "+message.author.username+", You already have a profile!");
 				return;
 			}
 			profiles[user] = {
@@ -91,8 +86,8 @@ var profile = {
 			};
 
 			fs.writeFile("./data/profiles.json", JSON.stringify(profiles), 'utf8', function(err){
-				if(err){ bot.sendMessage(message.channel, "```js\n"+err+"```"); return; }
-				bot.sendMessage(message.channel, "Created profile for "+message.author.name);
+				if(err){ message.channel.sendMessage("```js\n"+err+"```"); return; }
+				message.channel.sendMessage("Created profile for "+message.author.username);
 			});
 		},
 		"desc": "Creates a profile",
@@ -103,7 +98,7 @@ var profile = {
 		process: function(args, message, bot){
 			var user = message.author.id;
 			if(!profiles.hasOwnProperty(user)){
-				bot.sendMessage(message.channel, "Hey! "+message.author.name+", You have no profile!");
+				message.channel.sendMessage("Hey! "+message.author.username+", You have no profile!");
 				return;
 			}
 			if(args.length >= 3){
@@ -113,8 +108,8 @@ var profile = {
 				data = data.replace(/\`/gmi, "");
 				console.log("data: "+data);
 
-				for(i=0;i<message.mentions.length;i++){
-					data = data.replace(new RegExp("<@"+message.mentions[i].id+">", "gmi"), "@"+message.mentions[i].name);
+				for(i=0;i<message.mentions.users.size;i++){
+					data = data.replace(new RegExp("<@"+message.mentions.users[i].id+">", "gmi"), "@"+message.mentions.users[i].name);
 				}
 
 				console.log("data: "+data);
@@ -122,8 +117,8 @@ var profile = {
 				profiles[user][method] = data;
 
 				fs.writeFile("./data/profiles.json", JSON.stringify(profiles), 'utf8', function(err){
-					if(err){ bot.sendMessage(message.channel, "```js\n"+err+"```"); return; }
-					bot.sendMessage(message.channel, "Set field ``"+method+"`` for "+message.author.name);
+					if(err){ message.channel.sendMessage("```js\n"+err+"```"); return; }
+					message.channel.sendMessage("Set field ``"+method+"`` for "+message.author.username);
 				});
 			}
 		},
@@ -136,26 +131,26 @@ var profile = {
 			var user = message.author.id;
 			if(args.length >= 2){
 				if(message.author.id == settings["owner"]){
-					var user = message.mentions[0].id;
+					var user = message.mentions.users[0].id;
 
 					delete profiles[user];
 
 					fs.writeFile("./data/profiles.json", JSON.stringify(profiles), 'utf8', function(err){
-						if(err){ bot.sendMessage(message.channel, "```js\n"+err+"```"); return; }
-						bot.sendMessage(message.channel, "Deleted profile of "+message.mentions[0].name);
+						if(err){ message.channel.sendMessage("```js\n"+err+"```"); return; }
+						message.channel.sendMessage("Deleted profile of "+message.mentions.users[0].username);
 						return;
 					});
 				}
 			}else{
 				if(!profiles.hasOwnProperty(user)){
-					bot.sendMessage(message.channel, "Hey! "+message.author.name+", You have no profile!");
+					message.channel.sendMessage("Hey! "+message.author.username+", You have no profile!");
 					return;
 				}else{
 					delete profiles[user];
 
 					fs.writeFile("./data/profiles.json", JSON.stringify(profiles), 'utf8', function(err){
-						if(err){ bot.sendMessage(message.channel, "```js\n"+err+"```"); return; }
-						bot.sendMessage(message.channel, "Deleted profile of "+message.author.name);
+						if(err){ message.channel.sendMessage("```js\n"+err+"```"); return; }
+						message.channel.sendMessage("Deleted profile of "+message.author.username);
 						return;
 					});
 					return;

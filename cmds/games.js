@@ -35,11 +35,11 @@ var games = {
 					if(err){ throw err; }
 				});
 			}
-			msg += "User: "+message.author.name;
+			msg += "User: "+message.author.username;
 			msg += "\nBalance: "+usr["bal"]+" Coins";
 			msg += "\nWins/Losses: "+usr["wins"]+"/"+usr["losses"];
 			msg += "\nGames played: "+usr["games"]+"```";
-			bot.sendMessage(message.channel, msg);
+			message.channel.sendMessage(msg);
 		},
 		"desc": "Shows info about a user",
 		"usage": "ginfo",
@@ -53,7 +53,7 @@ var games = {
 			}
 
 			if(amt > users[message.author.id]["bal"]){
-				bot.sendMessage(message.channel, "Hey, "+message.author.name+", You don't have enough coins to bet that much!");
+				message.channel.sendMessage("Hey, "+message.author.username+", You don't have enough coins to bet that much!");
 				return;
 			}
 
@@ -85,7 +85,7 @@ var games = {
 
 			fs.writeFile("./data/users.json", JSON.stringify(users), 'utf8', function(err){
 				if(err){ throw err; }
-				bot.sendMessage(message.channel, msg);
+				message.channel.sendMessage(msg);
 			});
 		},
 		"desc": "Rolls the dice! Win table: ``4: 1x``, ``5: 1.5x``, ``6: 2x``",
@@ -99,7 +99,7 @@ var games = {
 				amt = Number(args[1]);
 			}
 			if(amt > users[message.author.id]["bal"]){
-				bot.sendMessage(message.channel, "Hey, "+message.author.name+", You don't have enough coins to bet that much!");
+				message.channel.sendMessage("Hey, "+message.author.username+", You don't have enough coins to bet that much!");
 				return;
 			}
 
@@ -130,7 +130,7 @@ var games = {
 			msg.push(line2.join(""));
 			msg.push(line3.join(""));
 
-			bot.sendMessage(message.channel, msg);
+			message.channel.sendMessage(msg.join("\n"));
 
 			msg = "";
 
@@ -180,7 +180,7 @@ var games = {
 			users[message.author.id]["games"]++;
 			fs.writeFile("./data/users.json", JSON.stringify(users), 'utf8', function(err){
 				if(err){ throw err; }
-				bot.sendMessage(message.channel, msg);
+				message.channel.sendMessage(msg);
 			});
 		},
 		"desc": "Spins the slots! Three in a row gives a win!",
@@ -191,12 +191,12 @@ var games = {
 		process: function(args, message, bot){
 			if(settings["owner"] == message.author.id){
 				if(args.length >= 3){
-					var to = message.mentions[0].id;
+					var to = message.mentions.users[0].id;
 					var amt = args[2];
 					users[to]["bal"]+= Number(amt);
 					fs.writeFile("./data/users.json", JSON.stringify(users), 'utf8', function(err){
 						if(err){ throw err; }
-						bot.sendMessage(message.channel, "Gave <@"+to+"> "+amt+" coins");
+						message.channel.sendMessage("Gave <@"+to+"> "+amt+" coins");
 					});
 				}
 			}

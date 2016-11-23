@@ -20,7 +20,7 @@ var admin = {
 			var admins = settings["admins"];
 			if(admins.indexOf(message.author.id) > -1){
 				if(args.length >= 2){
-					bot.setChannelTopic(message.channel, args.splice(1, args.length).join(" "), function(error){
+					message.channel.setTopic(args.splice(1, args.length).join(" "), function(error){
 						if(error){ console.log(error);}
 					});
 				}
@@ -35,7 +35,7 @@ var admin = {
 			var admins = settings["admins"];
 			if(admins.indexOf(message.author.id) > -1){
 				if(args.length >= 2){
-					bot.setStatus('online', args.splice(1, args.length).join(" "));
+					bot.user.setStatus('online', args.splice(1, args.length).join(" "));
 				}
 			}
 		},
@@ -49,9 +49,19 @@ var admin = {
 			if(admin == message.author.id){
 				if(args.length >= 2){
 					try{
-						bot.sendMessage(message.channel, "```js\n"+eval(args.splice(1, args.length).join(" "))+"```");
+						var msg = "";
+						if(args[1] == "-c"){
+							args = args.splice(1, args.length);
+							var code = args.splice(1, args.length).join(" ");
+							msg += "```js\n"+code+"```\n";
+							msg += "```js\n"+eval(code)+"```";
+						}else{
+							var code = args.splice(1, args.length).join(" ");
+							msg += "```js\n"+eval(code)+"```";
+						}
+						message.channel.sendMessage(msg);
 					}catch(e){
-						bot.sendMessage(message.channel, "```js\n"+e+"```");
+						message.channel.sendMessage("```js\n"+e+"```");
 					}
 				}
 			}
@@ -72,7 +82,7 @@ var admin = {
 					        if(data != undefined && data != null){
 						        bot.setAvatar(data, function(err){
 						        	if(!err){
-						        		bot.sendMessage(message.channel, "Updated avatar");
+						        		message.channel.sendMessage("Updated avatar");
 						        	}else{
 						        		console.dir(err);
 						        	}
@@ -100,13 +110,13 @@ var admin = {
 					nsfwChans.splice(nsfwChans.indexOf(chan), 1);
 					fs.writeFile("./data/nsfw.json", JSON.stringify(nsfwChans), 'utf8', function(err){
 						if(err){ throw err; }
-						bot.sendMessage(message.channel, "NSFW Commands disabled for channel.");
+						message.channel.sendMessage("NSFW Commands disabled for channel.");
 					});
 				}else{
 					nsfwChans.push(chan);
 					fs.writeFile("./data/nsfw.json", JSON.stringify(nsfwChans), 'utf8', function(err){
 						if(err){ throw err; }
-						bot.sendMessage(message.channel, "NSFW Commands enabled for channel.");
+						message.channel.sendMessage("NSFW Commands enabled for channel.");
 					});
 				}
 			}
@@ -128,13 +138,13 @@ var admin = {
 					fs.writeFile("./data/ignored.json", JSON.stringify(ignored), 'utf8', function(err){
 						if(err){ throw err; }
 					});
-					bot.sendMessage(message.channel, "No longer ignoring <@"+toI+">");
+					message.channel.sendMessage("No longer ignoring <@"+toI+">");
 				}else{
 					ignored.push(toI);
 					fs.writeFile("./data/ignored.json", JSON.stringify(ignored), 'utf8', function(err){
 						if(err){ throw err; }
 					});
-					bot.sendMessage(message.channel, "Ignoring <@"+toI+">");
+					message.channel.sendMessage("Ignoring <@"+toI+">");
 				}
 			}
 		},
@@ -156,13 +166,13 @@ var admin = {
 							tgl.splice(index, 1);
 							fs.writeFile("./data/toggled.json", JSON.stringify(toggled), 'utf8', function(err){
 								if(err){ throw err; }
-								bot.sendMessage(message.channel, "Command "+cmd+" enabled for server.");
+								message.channel.sendMessage("Command "+cmd+" enabled for server.");
 							});
 						}else{
 							toggled[cmd].push(id);
 							fs.writeFile("./data/toggled.json", JSON.stringify(toggled), 'utf8', function(err){
 								if(err){ throw err; }
-								bot.sendMessage(message.channel, "Command "+cmd+" disabled for server.");
+								message.channel.sendMessage("Command "+cmd+" disabled for server.");
 							});
 						}
 					}
@@ -185,7 +195,7 @@ var admin = {
 					var dones = 0;
 					for(i= 0;i<=100;i++){
 						if(toDelete <= 0){
-							bot.sendMessage(message, "Deleted **" + dones + "** messages in " + message.channel + ".");
+							message.channel.sendMessage("Deleted **" + dones + "** messages in " + message.channel.name + ".");
 							return;
 						}
 
@@ -201,6 +211,41 @@ var admin = {
 		"desc": "Cleans bot messages",
 		"usage": "clean ``[amount]``",
 		"cooldown": 10
+	},
+	"color": {
+		process: function(args, message, bot){
+			if(helper.checkRole(message, settings["adminrole"])){
+				var user = message.author;
+				var col = "";
+				var tmp = args[1];
+
+				if(message.mentions.length > 0){
+					var user = message.mentions[0];
+				}
+
+				if(args.length == 2){
+					col = parseInt("0x"+args[1], 16);
+				}else{
+					col = parseInt("0x"+args[2], 16);
+				}
+
+				bot.createRole(message.channel.server, {
+					position: [1],
+					permissions: [0],
+					name: "Color "+tmp,
+					color: col
+				}, function(err, role){
+					if(err){ bot.sendMessage(message.channel, "```js\n"+err+"```"); return;}
+					bot.addMemberToRole(user.id, role, function(err){
+						if(err){ bot.sendMessage(message.channel, "```js\n"+err+"```"); return;}
+						bot.sendMessage(message.channel, "Added color to user.");
+					});
+				});
+			}
+		},
+		"desc": "Sets the color of the mentioned user",
+		"usage": "color ``[user]`` ``color``",
+    	"cooldown": 10
 	}
 }
 

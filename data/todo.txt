@@ -1,5 +1,7 @@
 Add games and shit
 
+Add items to casino games
+
 https://github.com/sussman/ircbot-collection/blob/master/wolfbot.py
 
 mega c220200@trbvn.com

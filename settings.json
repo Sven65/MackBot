@@ -6,8 +6,6 @@
 		"pass": ""
 	},
 	"bot": {
-		"email": "",
-		"pass": "",
 		"token": ""
 	},
 	"prefix": {
