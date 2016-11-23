@@ -9,9 +9,9 @@ module.exports = {
 
 			request.get(`https://www.google.co.uk/finance/converter?a=${Amount}&from=${From}&to=${To}`).buffer(true).end((err, res) => {
 				if(!err && res.statusCode === 200){
-					let Result = res.text.match(/\<span class=bld\>(.+?)\<\/span\>/gmi)[0];
-					if(Result != undefined){
-						message.channel.sendMessage(`${Amount} ${From} is roughly ${Result.replace(/\<span class=bld\>/, "").replace(/\<\/span\>/, "")}`);
+					let Result = res.text.match(/\<span class=bld\>(.+?)\<\/span\>/gmi);
+					if(Result !== undefined && Result !== null){
+						message.channel.sendMessage(`${Amount} ${From} is roughly ${Result[0].replace(/\<span class=bld\>/, "").replace(/\<\/span\>/, "")}`);
 					}else{
 						message.channel.sendMessage(`:x: Couldn't find any rates!`);
 					}
