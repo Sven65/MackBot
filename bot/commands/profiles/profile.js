@@ -10,21 +10,22 @@ module.exports = {
 		}
 
 		let user = new User.User(usr.id);
+
 		let profile = new User.Profile(user);
 		
 		profile.getProfile().then((prof) => {
 			let Msg = "";
 			if(prof === null){
 				if(isSelf){
-					Msg = `You don't have a profile ${user.username}.`;
+					Msg = `You don't have a profile ${usr.username}.`;
 				}else{
-					Msg = `No profile found for ${user.username}.`;
+					Msg = `No profile found for ${usr.username}.`;
 				}
 				message.channel.sendMessage(Msg);
 				return;
 			}else{
 
-				Msg = `Profile for **${user.username}**`;
+				Msg = `Profile for **${usr.username}**`;
 				Msg += "\n```\n";
 
 				for(Field in prof){
@@ -72,9 +73,17 @@ module.exports = {
 						};
 					}
 
+					let alwaysShow = ["location", "about", "email", "timezone", "twitch", "twitter", "youtube", "reddit", "mal", "league", "steam"];
+
 					for(Field in prof){
-						if(prof[Field].length > 0){
-							DataMessage.fields.push({
+						if(alwaysShow.indexOf(Field) > -1){
+							DataMessage.embed.fields.push({
+								"name": Field.capFirst(),
+								"value": `${prof[Field].length>0?prof[Field]:'N/A'}`,
+								"inline": true
+							});
+						}else if(prof[Field].length > 0){
+							DataMessage.embed.fields.push({
 								"name": Field.capFirst(),
 								"value": prof[Field],
 								"inline": true
@@ -86,7 +95,7 @@ module.exports = {
 				}
 			}
 		}).catch((e) => {
-			MackBot.sendError(message, e);
+			MackBot.SendError(message, e);
 		});
 	},
 	Description: "Shows a users profile",

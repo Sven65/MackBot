@@ -1,5 +1,5 @@
 module.exports = class Profile{
-	construct(user){
+	constructor(user){
 		this.user = user;
 	}
 
@@ -25,7 +25,7 @@ module.exports = class Profile{
 	}
 
 	getProfile(){
-		return MackBot.rdb.r.table("Users").get(this.user.id).default(null).run(MackBot.rdb.conn);
+		return MackBot.rdb.r.table("Users").get(this.user.id)("profile").default(null).run(MackBot.rdb.conn);
 	}
 
 	setProfile(Field, Data){
