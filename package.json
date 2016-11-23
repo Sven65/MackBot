@@ -18,6 +18,8 @@
   "dependencies": {
     "discord.js": "github:hydrabolt/discord.js#indev",
     "request": "^2.72.0",
-    "rethinkdb": "^2.3.3"
+    "rethinkdb": "^2.3.3",
+    "xml2js": "^0.4.16",
+    "fix": "0.0.6"
   }
 }
