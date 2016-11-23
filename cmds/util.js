@@ -14,6 +14,7 @@ var tags = require("../data/tags.json");
 var useful = require('useful-module');
 var settings = require("../settings.json");
 var todo = require("../data/todo.json");
+var urlencode = require('urlencode');
 
 var giveArray = [];
 var giveStart = false;
@@ -22,6 +23,8 @@ var givechan = "";
 String.prototype.capFirst = function(){
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
+
+var votes = {};
 
 var util = {
 	"8ball": {
@@ -37,9 +40,9 @@ var util = {
 				"Outlook not so good", "Very doubtful"];
 
 			if(args.length >= 2){
-				bot.reply(message, reply[helper.rInt(0, reply.length-1)]);
+				message.channel.sendMessage("<@"+message.author.id+"> "+reply[helper.rInt(0, reply.length-1)]);
 			}else{
-				bot.sendMessage(message.channel, "Usage: !8ball [question]");
+				message.channel.sendMessage("Usage: !8ball [question]");
 			}
 		},
 		"desc": "A magic 8ball!",
@@ -57,16 +60,16 @@ var util = {
 
 					console.log(words.indexOf(args[1]));
 					if(helper.indexx(words, args[1].toLowerCase()) > -1){
-						bot.reply(message, "I already know that word!");
+						message.channel.sendMessage("<@"+message.author.id+"> I already know that word!");
 					}else{
 						fs.appendFile('./words.txt', '\n'+args[1], 'utf8', function(err){
 							if(err){ throw err; }
 						});
-						bot.sendMessage(message.channel, "Added word: "+args[1]);
+						message.channel.sendMessage("Added word: "+args[1]);
 					}
 				});
 			}else{
-				bot.sendMessage(message.channel, "Usage: !addword [word]");
+				message.channel.sendMessage("Usage: !addword [word]");
 			}
 		},
 		"desc": "Adds a word to the list",
@@ -99,7 +102,7 @@ var util = {
 								animeArray.push("__**" + result.anime.entry[0].title + "**__ - __**" + result.anime.entry[0].english +" - ["+result.anime.entry[0].status[0]+"] "+ "**__ • *" + result.anime.entry[0].start_date + "*  to *" + result.anime.entry[0].end_date + "*\n");
 								animeArray.push("**Type:** *" + result.anime.entry[0].type + "*  **Episodes:** *" + result.anime.entry[0].episodes + "*  **Score:** *" + result.anime.entry[0].score + "*");
 								animeArray.push(synopsis);
-								bot.sendMessage(message.channel, animeArray);
+								message.channel.sendMessage(animeArray.join("\n"));
 							});
 						}
 					});
@@ -121,7 +124,7 @@ var util = {
 							var def = data["list"][0]["definition"];
 
 							def = def.replace(/<br \/>/g, " ");
-							def = def.replace(/\[(.{1,10})\]/g, "");
+							//def = def.replace(/\[(.{1,10})\]/g, "");
 							def = def.replace(/\r?\n|\r/g, " ");
 							def = def.replace(/\[(i|\/i)\]/g, "*");
 							def = def.replace(/\[(b|\/b)\]/g, "**");
@@ -140,13 +143,14 @@ var util = {
 
 							if(def.length > 1000){def = def.substring(0, 1000); def += "...";}
 							if(example.length > 250){example = example.substring(0, 250); example += "...";}
-							defArr.push("__**"+term.replace(/\+/g, " ")+"**__\n");
+							defArr.push("__**"+data["list"][0]["word"].replace(/\+/g, " ").capFirst()+"**__ By __**"+data["list"][0]["author"]+"**__\n");
 							defArr.push("**Definition:** "+def);
 							defArr.push("**Example:** "+example);
+							defArr.push("\n\n[***<"+data["list"][0]["permalink"]+">***]");
 
-							bot.sendMessage(message.channel, defArr);
+							message.channel.sendMessage(defArr.join("\n"));
 						}else{
-							bot.sendMessage(message.channel, "No definition for "+term.replace(/\+/g, " ")+".");
+							message.channel.sendMessage("No definition for "+term.replace(/\+/g, " ").capFirst()+".");
 						}
 					}else{
 						console.log(error);
@@ -165,13 +169,13 @@ var util = {
 			if(args.length >= 2){
 				usr = args[1];
 				if(usr == ""){
-					usr = message.sender.name;
+					usr = message.author.username;
 				}
 			}else{
-				usr = message.sender.name;
+				usr = message.author.username;
 			}
 
-			bot.sendMessage(message.channel, "*hugs "+usr+"*");
+			message.channel.sendMessage("*hugs "+usr+"*");
 		},
 		"desc": "Hugs!",
 		"usage": "hug `(user)`",
@@ -186,11 +190,11 @@ var util = {
 		    			var data = JSON.parse(JSON.stringify(result))['myanimelist'];
 		    			if(data !== undefined){
 		    				if(data.hasOwnProperty("error")){
-		    					bot.sendMessage(message.channel, data["error"]);
+		    					message.channel.sendMessage(data["error"]);
 		    				}else{
 		    					console.dir(data["myinfo"][0]["user_name"]);
 		    					data = data["myinfo"][0];
-				    			bot.sendMessage(message.channel, "Anime stats of "+data["user_name"]+": Watching "+data["user_watching"]+" animes, Completed "+data["user_completed"]+" animes, Plan to watch "+data["user_plantowatch"]+" animes, Dropped "+data["user_dropped"]+" animes and "+data["user_onhold"]+" animes on hold. "+data["user_name"]+" has spent "+data["user_days_spent_watching"]+" days watching anime.");
+				    			message.channel.sendMessage("Anime stats of "+data["user_name"]+": Watching "+data["user_watching"]+" animes, Completed "+data["user_completed"]+" animes, Plan to watch "+data["user_plantowatch"]+" animes, Dropped "+data["user_dropped"]+" animes and "+data["user_onhold"]+" animes on hold. "+data["user_name"]+" has spent "+data["user_days_spent_watching"]+" days watching anime.");
 				    		}
 				    	}
 					});
@@ -211,9 +215,9 @@ var util = {
 
 				num = helper.rInt(min, max);
 
-				bot.sendMessage(message.channel, "Rolled number: "+num);
+				message.channel.sendMessage("Rolled number: "+num);
 			}else{
-				bot.sendMessage(message.channel, "Usage: !roll [min] [max]");
+				message.channel.sendMessage("Usage: !roll [min] [max]");
 			}
 		},
 		"desc": "Rolls a random number.",
@@ -227,10 +231,10 @@ var util = {
 			if(args.length >= 2){
 				usr = args[1];
 			}else{
-				usr = message.sender.name;
+				usr = message.author.username;
 			}
 
-			bot.sendMessage(message.channel, "*slaps "+usr+"*");
+			message.channel.sendMessage("*slaps "+usr+"*");
 		},
 		"desc": "Slaps!",
 		"usage": "slap `[user]`",
@@ -240,7 +244,7 @@ var util = {
 		process: function(args, message, bot){
 			up = helper.fTime(os.uptime());
 			botup = helper.fTime(process.uptime());
-			bot.sendMessage(message.channel, "Uptime: "+up+"\nBot uptime: "+botup);
+			message.channel.sendMessage("Uptime: "+up+"\nBot uptime: "+botup);
 		},
 		"desc": "The physical servers uptime.",
 		"usage": "uptime",
@@ -268,7 +272,7 @@ var util = {
 					word += words[helper.rInt(0, words.length-1)].replace(/(?:\r\n|\r|\n)/g, '')+" ";
 				}
 
-				bot.sendMessage(message.channel, word);
+				message.channel.sendMessage(word);
 			});
 		},
 		"desc": "Picks some random words.",
@@ -291,11 +295,11 @@ var util = {
 						}
 					}, function(error, response, body){
 						if(!error && response.statusCode == 201){
-							bot.sendMessage(message, message.author.username.replace(/@/g, '@\u200b') + " created a strawpoll. Vote here: http://strawpoll.me/" + body.id);
+							message.channel.sendMessage(message.author.username.replace(/@/g, '@\u200b') + " created a strawpoll. Vote here: http://strawpoll.me/" + body.id);
 						}else if(error){
-							bot.sendMessage(msg, error);
+							message.channel.sendMessage(error);
 						}else if(response.statusCode != 201){
-							bot.sendMessage(message, "Got status code " + response.statusCode);
+							message.channel.sendMessage("Got status code " + response.statusCode);
 						}
 					});
 			}
@@ -307,7 +311,7 @@ var util = {
 	"request": {
 		process: function(args, message, bot){
 			if(args.length >= 2){
-				bot.sendMessage("141610251299454976", "__Requested by "+message.author.username+" on the server **"+message.channel.server.name+"**:__\n"+args.splice(1, args.length).join(" "));
+				bot.users.find("id", "141610251299454976").sendMessage("__Requested by "+message.author.username+" on the server **"+message.guild.name+"**:__\n"+args.splice(1, args.length).join(" "));
 			}
 		},
 		"desc": "Sends a feature request to the maker of this bot.",
@@ -318,14 +322,16 @@ var util = {
 		process: function(args, message, bot){
 			if(args.length >= 2){
 				if(args[1] == "0/0"){
-					bot.sendMessage(message.channel, "Pfft. I'm a bot! I can't calculate 0/0!");
+					message.channel.sendMessage("Pfft. I'm a bot! I can't calculate 0/0!");
 				}else{
 					var term = args.splice(1, args.length).join(" ");
 					try{
-						var calc = mathjs.eval(term);
-						bot.sendMessage(message.channel, "```js\n"+calc+"```");
+						var calc = mathjs.parse(term);
+						var tex = calc.toTex();
+						var result = calc.compile().eval();
+						message.channel.sendMessage("http://chart.apis.google.com/chart?cht=tx&chl="+urlencode(tex)+"="+result+"\n```js\n"+result+"```");
 					}catch(e){
-						bot.sendMessage(message.channel, "Error! ```js\n"+e+"```");
+						message.channel.sendMessage("Error! ```js\n"+e+"```");
 					}
 					
 					
@@ -334,7 +340,7 @@ var util = {
 		},
 		"desc": "Calculate math.",
 		"usage": "calc `expression`",
-		"cooldown": 10
+		"cooldown": 2
 	},
 	"currency": {
 		process: function(args, message, bot){
@@ -349,9 +355,9 @@ var util = {
 					if(!error && response.statusCode == 200){
 						var result = body.match(/\<span class=bld\>(.+?)\<\/span\>/gmi)[0];
 						if(result != undefined){
-							bot.sendMessage(message.channel, amt+" "+from+" is "+result.replace(/\<span class=bld\>/, "").replace(/\<\/span\>/, ""));
+							message.channel.sendMessage(amt+" "+from+" is "+result.replace(/\<span class=bld\>/, "").replace(/\<\/span\>/, ""));
 						}else{
-							bot.sendMessage(message.channel, "Couldn't find any rates!");
+							message.channel.sendMessage("Couldn't find any rates!");
 						}
 					}
 				});
@@ -385,9 +391,9 @@ var util = {
 						userArr.push("**Birthday: **"+moment.unix(result["dob"]).format("DD/MM/YYYY"));
 
 
-						bot.sendMessage(message.channel, userArr);
+						message.channel.sendMessage(userArr.join("\n"));
 					}else{
-						bot.sendMessage(message.channel, "Whoops. Something went wrong.");
+						message.channel.sendMessage("Whoops. Something went wrong.");
 					}
 				}
 			});
@@ -414,7 +420,7 @@ var util = {
 				term = term.replace(/election/gi, "eating contest");
 				term = term.replace(/hacker/gi, "the hacker known as 4chan");
 				term = term.replace(/anime fan/gi, "total fucking weeb");
-				bot.sendMessage(message.channel, term);
+				message.channel.sendMessage(term);
 			}
 		},
 		"desc": "Replaces words",
@@ -430,24 +436,42 @@ var util = {
 						if(!giveStart){
 							giveStart = true;
 							giveChan = message.channel.id;
-							bot.sendMessage(message.channel, "Giveaway started! Use ``"+settings["prefix"]["main"]+"giveaway join`` to join!");
+							message.channel.sendMessage("Giveaway started! Use ``"+settings["prefix"]["main"]+"giveaway join`` to join!");
 						}
 					}
 				}else if(act == "join" && message.channel.id == giveChan){
 					if(giveArray.indexOf(message.author.id) == -1 && giveStart){
 						giveArray.push(message.author.id);
+						message.channel.sendMessage("<@"+message.author.id+"> has been entered into the giveaway and there is now "+giveArray.length+" entries.");
+					}else{
+						message.channel.sendMessage("<@"+message.author.id+"> you're already entered.");
+
 					}
 				}else if(act == "stop"){
 					if(settings["admins"].indexOf(message.author.id) > -1){
 						if(giveStart){
 							giveStart = false;
-							bot.sendMessage(message.channel, "Giveaway stopped! The winner is <@"+giveArray[helper.rInt(0, giveArray.length-1)]+">! Congratulations!");
+
+							let ppl = [];
+							ppl[0] = giveArray[helper.rInt(0, giveArray.length-1)];
+
+							giveArray.splice(giveArray.indexOf(ppl[0]), 1);
+
+							ppl[1] = giveArray[helper.rInt(0, giveArray.length-1)];
+
+							giveArray.splice(giveArray.indexOf(ppl[1]), 1);
+
+							ppl[2] = giveArray[helper.rInt(0, giveArray.length-1)];
+
+							giveArray.splice(giveArray.indexOf(ppl[2]), 1);
+
+							message.channel.sendMessage("Giveaway stopped! Out of "+(giveArray.length+3)+" entries, the winner is <@"+ppl[0]+">! Congratulations!\nSecond place: <@"+ppl[1]+">\nThird place: <@"+ppl[2]+">");
 							giveArray = [];
 						}
 					}
 				}else if(act == "stats"){
 					if(giveStart){
-						bot.sendMessage(message.channel, giveArray.length+" Users in the giveaway. Each user has a "+100/giveArray.length+"% chance of winning.");
+						message.channel.sendMessage(giveArray.length+" Users in the giveaway. Each user has a "+100/giveArray.length+"% chance of winning.");
 					}
 				}
 			}
@@ -466,7 +490,7 @@ var util = {
 						var link = make.match(/\"(.+?)\"/gmi)[0].replace(/\"/gmi, "");
 						var food = fix.decodeHTML(make.match(/\"\>(.+?)\>/gmi)[0].replace(/\"\>/gmi, "").replace(/\</gmi, "").replace(/a\>/gmi, ""));
 						var head2 = head[0].replace(/\n/gmi, "").replace(/\<dl>/gmi, "").replace(/\<\/dl\>/gmi, "");
-						bot.sendMessage(message.channel, "**"+head2+"** "+food+" ("+link+")");
+						message.channel.sendMessage("**"+head2+"** "+food+" ("+link+")");
 					}
 				}
 
@@ -479,7 +503,7 @@ var util = {
 	"cancer": {
 		process: function(args, message, bot){
 			var term = args.splice(1, args.length).join(" ");
-			bot.sendMessage(message.channel, cancer.cancer(term));
+			message.channel.sendMessage(cancer.cancer(term));
 		},
 		"desc": "Cancerifies a string",
 		"usage": "cancer ``string``",
@@ -491,7 +515,7 @@ var util = {
 				var term = args.splice(1, args.length).join(" ");
 				var qrcode = qr.imageSync(term, { type: 'png' });
 				
-				bot.sendFile(message.channel, qrcode);
+				message.channel.sendFile(qrcode);
 			}
 		},
 		"desc": "Generates a QR code",
@@ -503,20 +527,14 @@ var util = {
 			if(args.length >= 3){
 				var url = args[1];
 				var name = args[2];
-				var ext = url.split('.').pop();
-				var intName = helper.rInt(100000000, 999999999).toString(36).toLowerCase()+"."+ext;
 				if(images.hasOwnProperty(name)){
-					bot.sendMessage(message.channel, "Image ``"+name+"`` already exists.");
+					message.channel.sendMessage("Image ``"+name+"`` already exists.");
 					return;
 				}
-				request.head(url, function(err, res, body){
-					request(url).pipe(fs.createWriteStream("./data/images/"+intName)).on('close', function(){
-						images[name] = intName;
-						fs.writeFile("./data/images.json", JSON.stringify(images), 'utf8', function(err){
-							if(err){ throw err; }
-							bot.sendMessage(message.channel, "Saved image: "+name);
-						});
-					});
+				images[name] = url;
+				fs.writeFile("./data/images.json", JSON.stringify(images), 'utf8', function(err){
+					if(err){ throw err; }
+					message.channel.sendMessage("Saved image: "+name);
 				});
 			}
 		},
@@ -529,9 +547,9 @@ var util = {
 			if(args.length >= 2){
 				var file = args[1];
 				if(images.hasOwnProperty(file)){
-					bot.sendFile(message.channel, "./data/images/"+images[file]);
+					message.channel.sendMessage.sendMessage(images[file]);
 				}else{
-					bot.sendMessage(message.channel, "No such image.");
+					message.channel.sendMessage.sendMessage("No such image.");
 				}
 			}
 		},
@@ -544,13 +562,10 @@ var util = {
 			if(args.length >= 2 && settings["owner"] == message.author.id){
 				var file = args[1];
 				if(images.hasOwnProperty(file)){
-					fs.unlink("./data/images/"+images[file], function(err){
+					delete images[file];
+					fs.writeFile("./data/images.json", JSON.stringify(images), 'utf8', function(err){
 						if(err){ throw err; }
-						delete images[file];
-						fs.writeFile("./data/images.json", JSON.stringify(images), 'utf8', function(err){
-							if(err){ throw err; }
-							bot.sendMessage(message.channel, "Removed image: "+file);
-						});
+						message.channel.sendMessage.sendMessage("Removed image: "+file);
 					});
 				}
 			}
@@ -561,7 +576,7 @@ var util = {
 	},
 	"imagelist": {
 		process: function(args, message, bot){
-			bot.sendMessage(message.channel, Object.keys(images).sort().join(", "));
+			message.channel.sendMessage.sendMessage(Object.keys(images).sort().join(", "));
 		},
 		"desc": "Lists available images",
 		"usage": "imagelist",
@@ -573,13 +588,13 @@ var util = {
 				var tag = args[1];
 				var content = args.splice(2, args.length).join(" ");
 				if(tags.hasOwnProperty(tag)){
-					bot.updateMessage(message, "``Tag "+tag+" already exists.``");
+					message.channel.sendMessage("``Tag "+tag+" already exists.``");
 					return;
 				}
 				tags[tag] = content;
 				fs.writeFile("./data/tags.json", JSON.stringify(tags), 'utf8', function(err){
 					if(err){ throw err; }
-					bot.sendMessage(message.channel, "``Saved tag: "+tag+"``");
+					message.channel.sendMessage("``Saved tag: "+tag+"``");
 				});
 			}
 		},
@@ -592,7 +607,15 @@ var util = {
 			if(args.length >= 2){
 				var tag = args[1];
 				if(tags.hasOwnProperty(tag)){
-					bot.sendMessage(message.channel, tags[tag])
+					var msg = tags[tag].replace(/\{name\}/gmi, message.author.username).replace(/\{servername\}/gmi,  message.guild.name);
+					msg = msg.replace(/\{channelname\}/gmi, message.channel.name).replace(/\{channelid\}/gmi, message.channel.id).replace(/\{serverid\}/gmi, message.guild.id);
+					for(i=2;i<6;i++){
+						if(args[i] == undefined){
+							args[i] = "";
+						}
+					}
+					msg = msg.replace(/\{1\}/gmi, args[2]).replace(/\{2\}/gmi, args[3]).replace(/\{3\}/gmi, args[4]).replace(/\{4\}/gmi, args[5]).replace(/\{5\}/gmi, args[6]);
+					message.channel.sendMessage(msg);
 				}
 			}
 		},
@@ -602,7 +625,7 @@ var util = {
 	},
 	"taglist": {
 		process: function(args, message, bot){
-			bot.sendMessage(message.channel, Object.keys(tags).sort().join(", "));
+			message.channel.sendMessage(Object.keys(tags).sort().join(", "));
 		},
 		"desc": "Lists available tags",
 		"usage": "taglist",
@@ -616,7 +639,7 @@ var util = {
 					delete tags[tag];
 					fs.writeFile("./data/tags.json", JSON.stringify(tags), 'utf8', function(err){
 						if(err){ throw err; }
-						bot.sendMessage(message.channel, "Removed tag: "+name);
+						message.channel.sendMessage("Removed tag: "+name);
 					});
 				}
 			}
@@ -634,27 +657,27 @@ var util = {
                     if(!err && res.statusCode == 200){
                         body = JSON.parse(body);
                         if(body.hasOwnProperty("error")){
-                            bot.sendMessage(message.channel, "Error! "+body["error"])
+                            message.channel.sendMessage("Error! "+body["error"])
                         }else{
                             if(body["data"]["children"][0]["data"]["over_18"] == true){
                                 if(require("../data/nsfw.json").indexOf(message.channel.id)){
                                 	var post = body["data"]["children"][helper.rInt(1, body["data"]["children"].length)]["data"];
                                 	console.dir(post);
                                 	if(post["is_self"]){
-                                		bot.sendMessage(message.channel, "http://reddit.com"+post["permalink"]);
+                                		message.channel.sendMessage("http://reddit.com"+post["permalink"]);
                                 	}else{
-                                    	bot.sendMessage(message.channel, post["url"]);
+                                    	message.channel.sendMessage(post["url"]);
                                     }
                                 }else{
-                                    bot.sendMessage(message.channel, "Sorry. This subreddit is only for users over 18.");
+                                    message.channel.sendMessage("Sorry. This subreddit is only for users over 18.");
                                 }
                             }else{
                             	var post = body["data"]["children"][helper.rInt(1, body["data"]["children"].length)]["data"];
                             	console.dir(post);
                             	if(post["is_self"]){
-                            		bot.sendMessage(message.channel, "http://reddit.com"+post["permalink"]);
+                            		message.channel.sendMessage("http://reddit.com"+post["permalink"]);
                             	}else{
-                                	bot.sendMessage(message.channel, post["url"]);
+                                	message.channel.sendMessage(post["url"]);
                                 }
                             }
                         }
@@ -668,7 +691,7 @@ var util = {
 	},
 	"guid": {
 		process: function(args, message, bot){
-			bot.sendMessage(message.channel, "```js\n"+useful.guid()+"```");
+			message.channel.sendMessage("```js\n"+useful.guid()+"```");
 		},
 		"desc": "Generates a GUID",
 		"usage": "guid",
@@ -684,7 +707,7 @@ var util = {
 				todo[message.author.id][useful.guid()] = {"done": false, "data": data};
 				fs.writeFile("./data/todo.json", JSON.stringify(todo), 'utf8', function(err){
 					if(err){ throw err; }
-					bot.sendMessage(message.channel, "``Added todo for "+message.author.name+"``");
+					message.channel.sendMessage("``Added todo for "+message.author.username+"``");
 				});
 			}
 		},
@@ -699,7 +722,7 @@ var util = {
 				var itms = Object.keys(list);
 				if(itms.length > 0){
 					var msg = [];
-					msg.push("**"+message.author.name+"'s todo list**");
+					msg.push("**"+message.author.username+"'s todo list**");
 					for(i=0;i<itms.length;i++){
 						if(list[itms[i]]["done"]){
 							msg.push("~~"+list[itms[i]]["data"]+"~~");
@@ -707,12 +730,12 @@ var util = {
 							msg.push(list[itms[i]]["data"]);
 						}
 					}
-					bot.sendMessage(message.channel, msg);
+					message.channel.sendMessage(msg);
 				}else{
-					bot.sendMessage(message.channel, "Hey! "+message.author.name+", You don't have anything on your todo list");
+					message.channel.sendMessage("Hey! "+message.author.username+", You don't have anything on your todo list");
 				}
 			}else{
-				bot.sendMessage(message.channel, "Hey! "+message.author.name+", You don't have anything on your todo list");
+				message.channel.sendMessage("Hey! "+message.author.username+", You don't have anything on your todo list");
 			}
 		}
 	},
@@ -728,7 +751,7 @@ var util = {
 						todo[message.author.id][itms[item]]["done"] = true;
 						fs.writeFile("./data/todo.json", JSON.stringify(todo), 'utf8', function(err){
 							if(err){ throw err; }
-							bot.sendMessage(message.channel, "``Set item to done for "+message.author.name+"``");
+							message.channel.sendMessage("``Set item to done for "+message.author.username+"``");
 						});
 					}
 				}
@@ -736,6 +759,29 @@ var util = {
 		},
 		"desc": "Set an item to done.",
 		"usage": "tdone ``item number``",
+		"cooldown": 10
+	},
+	"tdel": {
+		process: function(args, message, bot){
+			if(args.length >= 2){
+				if(todo.hasOwnProperty(message.author.id)){
+					var list = todo[message.author.id];
+					var itms = Object.keys(list);
+					var item = Number(args[1]);
+
+					if(item <= itms.length){
+						console.log(todo[message.author.id][itms[item]]);
+						delete todo[message.author.id][itms[item]];
+						fs.writeFile("./data/todo.json", JSON.stringify(todo), 'utf8', function(err){
+							if(err){ message.channel.sendMessage("```js\n"+err+"```"); return; }
+							message.channel.sendMessage("``Deleted item for "+message.author.username+"``");
+						});
+					}
+				}
+			}
+		},
+		"desc": "Deletes an item from a todo list.",
+		"usage": "tdel ``item number``",
 		"cooldown": 10
 	}
 };

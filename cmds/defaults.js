@@ -15,10 +15,10 @@ var nsfwChans = require("../data/nsfw.json");
 var defaults = {
 	"info": {
 		process: function(args, message, bot){
-			var owner = bot.users.get("id", settings["owner"]).name;
+			var owner = bot.users.find("id", settings["owner"]).username;
 			var denot = ["css", "fix", "diff", "xl"];
 
-			bot.sendMessage(message.channel, "```"+denot[helper.rInt(0, denot.length-1)]+"\nMackBot Version "+settings["version"]+"\nPrefix: "+settings["prefix"]["main"]+"\nUsing: discord.js\nOwner: "+owner+"\nBot uptime: "+helper.fTime(process.uptime())+"\nConnected to "+bot.servers.length+" servers and "+bot.channels.length+" channels"+"\nTotal users: "+bot.users.length+"\nUsing "+(Math.round(process.memoryUsage().rss / 1024 / 1000))+"MB of memory\nMore info: https://github.com/Sven65/MackBot```");
+			message.channel.sendMessage("```"+denot[helper.rInt(0, denot.length-1)]+"\nMackBot Version "+settings["version"]+"\nPrefix: "+settings["prefix"]["main"]+"\nUsing: discord.js\nOwner: "+owner+"\nBot uptime: "+helper.fTime(process.uptime())+"\nConnected to "+bot.servers.length+" servers and "+bot.channels.length+" channels"+"\nTotal users: "+bot.users.length+"\nUsing "+(Math.round(process.memoryUsage().rss / 1024 / 1000))+"MB of memory\nMore info: https://github.com/Sven65/MackBot```");
 		},
 		"desc": "Bot info",
 		"usage": "info",
@@ -31,7 +31,7 @@ var defaults = {
 			if(time < 0){
 				time *= -1;
 			}
-			bot.reply(message, "Pong! (Time taken "+time/1000+" seconds)");
+			message.channel.sendMessage("<@"+message.author.id+">Pong! (Time taken "+time/1000+" seconds)");
 		},
 		"desc": "Pong!",
 		"usage": "ping",
@@ -44,7 +44,7 @@ var defaults = {
 			if(time < 0){
 				time *= -1;
 			}
-			bot.reply(message, "Ping! (Time taken "+time/1000+" seconds)");
+			message.channel.sendMessage("<@"+message.author.id+">Pong! (Time taken "+time/1000+" seconds)");
 		},
 		"desc": "Ping!",
 		"usage": "pong",
@@ -52,7 +52,7 @@ var defaults = {
 	},
 	"invite": {
 		process: function(args, message, bot){
-			bot.sendMessage(message.channel, "Click here to add me to your server! https://discordapp.com/oauth2/authorize?&client_id=168330106224246784&scope=bot&permissions=0");	
+			message.channel.sendMessage("Click here to add me to your server! https://discordapp.com/oauth2/authorize?&client_id=168330106224246784&scope=bot&permissions=0");	
 		},
 		"desc": "Sends a invite link",
 		"usage": "invite",
@@ -68,14 +68,14 @@ var defaults = {
 					helpMsg += "**Description: **"+commands[cmd].desc+"\n\n";
 					helpMsg += "**Usage: **"+settings['prefix']["main"]+""+commands[cmd].usage;
 
-					bot.sendMessage(message.channel, helpMsg);
+					message.channel.sendMessage(helpMsg);
 				}
 			}else{
 				var msg = "Hi! I'm MackBot! For a list of the commands I recognize, you can type ``"+settings['prefix']['main']+"commands``";
 				if(settings["prefix"]["botname"]){
-					msg += ", ``"+bot.user.name+" commands`` or <@"+bot.user.id+"> commands";
+					msg += ", ``"+bot.user.username+" commands`` or <@"+bot.user.id+"> commands";
 				}
-				bot.sendMessage(message.channel, msg);
+				message.channel.sendMessage(msg);
 			}
 		},
 		"desc": "Shows help message",
@@ -160,7 +160,7 @@ var defaults = {
 		    	helpMsg += "\n\n**NSFW: **";
 		    	helpMsg += nsf.sort().join(", ")
 		    }
-		    bot.sendMessage(message.channel, helpMsg);
+		    message.channel.sendMessage(helpMsg);
 		},
 		"desc": "Shows commands",
 		"usage": "commands",

@@ -19,9 +19,9 @@ var nsfw = {
 				if(!error && response.statusCode == 200){
 					var img = body.match(/data-large-file-url=\"(.*)\"/gm);
 					if(img != null){
-						bot.sendMessage(message, "http://danbooru.donmai.us"+img[helper.rInt(0, img.length)].replace(new RegExp(/data-large-file-url=/g), "").replace(new RegExp(/\"/g), ""));
+						message.channel.sendMessage("http://danbooru.donmai.us"+img[helper.rInt(0, img.length)].replace(new RegExp(/data-large-file-url=/g), "").replace(new RegExp(/\"/g), ""));
 					}else{
-						bot.sendMessage(message, "Couldn't find any images with the tag(s) `"+tag.replace(/_/g, " ")+"`");
+						message.channel.sendMessage("Couldn't find any images with the tag(s) `"+tag.replace(/_/g, " ")+"`");
 					}
 				}
 			});
@@ -46,9 +46,9 @@ var nsfw = {
 				if(!error && response.statusCode == 200){
 					var data = JSON.parse(body);
 					if(data.length < 1){
-						bot.sendMessage(message.channel, "Couldn't find any images with the tag(s) `"+tag.replace(/\+/g, " ")+"`");
+						message.channel.sendMessage("Couldn't find any images with the tag(s) `"+tag.replace(/\+/g, " ")+"`");
 					}else{
-						bot.sendMessage(message.channel, data[helper.rInt(0, data.length)].file_url);
+						message.channel.sendMessage(data[helper.rInt(0, data.length)].file_url);
 					}
 				}else{
 					console.dir(error);
@@ -76,9 +76,9 @@ var nsfw = {
 				if(!error && response.statusCode == 200){
 					var img = body.match(/file_url=\"(.*)\"/gm);
 					if(img != null){
-						bot.sendMessage(message, "http:"+img[helper.rInt(0, img.length)].split(" ")[0].replace(/file_url=/g, "").replace(/\"/g, ""));
+						message.channel.sendMessage("http:"+img[helper.rInt(0, img.length)].split(" ")[0].replace(/file_url=/g, "").replace(/\"/g, ""));
 					}else{
-						bot.sendMessage(message, "Couldn't find any images with the tag(s) `"+tag.replace(/_/g, " ")+"`");
+						message.channel.sendMessage("Couldn't find any images with the tag(s) `"+tag.replace(/_/g, " ")+"`");
 					}
 				}else{
 					console.dir(error);
@@ -100,11 +100,11 @@ var nsfw = {
 					if(JSON.parse(body)){
 						var x = JSON.parse(body);
 						var img = "http://media.oboobs.ru/"+x[0]["preview"];
-						bot.sendMessage(message.channel, img);
+						message.channel.sendMessage(img);
 					}
 					
 				}else{
-					bot.sendMessage(message.channel, "```js\nERROR\n"+error+"\nResponse: "+response.statusCode+"```");
+					message.channel.sendMessage("```js\nERROR\n"+error+"\nResponse: "+response.statusCode+"```");
 				}
 			});
 		},
@@ -123,12 +123,12 @@ var nsfw = {
 					try{
 						var x = JSON.parse(body);
 						var img = "http://media.obutts.ru/"+x[0]["preview"];
-						bot.sendMessage(message.channel, img);
+						message.channel.sendMessage(img);
 					}catch(e){
-						bot.sendMessage(message.channel, "```js\n"+e+"```");
+						message.channel.sendMessage("```js\n"+e+"```");
 					}
 				}else{
-					bot.sendMessage(message.channel, "```js\nERROR\n"+error+"\nResponse: "+response.statusCode+"```");
+					message.channel.sendMessage("```js\nERROR\n"+error+"\nResponse: "+response.statusCode+"```");
 				}
 			});
 		},
