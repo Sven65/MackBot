@@ -20,7 +20,7 @@ module.exports = {
 			if(message.channel.type !== "text"){
 				embedPerms = true;
 			}else{
-				if(message.channel.permissionsFor(bot.user).hasPermission("EMBED_LINKS")){
+				if(message.channel.permissionsFor(MackBot.user).hasPermission("EMBED_LINKS")){
 					embedPerms = true;
 				}
 			}

@@ -9,8 +9,8 @@ module.exports = {
 
 		Guild.prefix.then((prefix) => {
 			try{
-				if(args.length >= 2){
-					let Command = args[1].toLowerCase();
+				if(Args.length >= 1){
+					let Command = Args[0].toLowerCase();
 					if(MackBot.Commands.All.indexOf(Command) > -1){
 
 						let helpMsg = `__**${Command.capFirst()}**__\n\n`;
@@ -93,9 +93,9 @@ module.exports = {
 					}
 				}else{
 					let msg = `Hello, ${message.author.username}. I'm ${MackBot.user.username}.\nFor a list of the commands I recognize, you can type \`\`${prefix}commands\`\``;
-					if(Config.prefix.MackBotname){
+					/*if(Config.prefix.botname){
 						msg+= `, \`\`${MackBot.user.username} commands\`\` or \`\`@${MackBot.user.username} commands\`\``;
-					}
+					}*/
 					msg += ".";
 					message.channel.sendMessage(msg);
 				}

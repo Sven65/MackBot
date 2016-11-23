@@ -2,7 +2,13 @@ module.exports = {
 	Handle: (message) => {
 		if(message.author.bot) return;
 
-		let Guild = new Server.Server(message.guild.id);
+		let SId = "0";
+
+		if(message.channel.type === "text"){
+			SId = message.guild.id;
+		}
+
+		let Guild = new Server.Server(SId);
 
 		Guild.exists.then((exists) => {
 			if(!exists) Guild.create();
@@ -20,36 +26,44 @@ module.exports = {
 						
 						if(MackBot.Commands.All.indexOf(command) > -1){
 							try{
-								user.isFirstTime(Command).then((FirstTime) => {
-									user.getLastExec(Command).then((lastExecTime) => {
+								user.isFirstTime(command).then((FirstTime) => {
+									user.getLastExec(command).then((lastExecTime) => {
 										let now = new Date().valueOf();
 										if(now <= lastExecTime+MackBot.CommandHelper.resolveCooldown(command)*1000 && FirstTime){
 											let time = Math.round(((lastExecTime + MackBot.CommandHelper.resolveCooldown(command) * 1000) - now) / 1000);
 											message.channel.sendMessage(`You need to calm down, ${message.author.username}. :hourglass: ${time} seconds`);
 										}else{
-											Args.shift();
-											MackBot.CommandHelper.resolveCommand(command).Execute(Args, message);
-											user.setFirstTime(command, true).then(() => {
-												user.setLastExec(command, now).then(() => {
+											try{
+												Args.shift();
+												MackBot.CommandHelper.resolveCommand(command).Execute(Args, message);
+												user.setFirstTime(command, true).then(() => {
+													user.setLastExec(command, now).then(() => {
 
-												});
-											})
+													});
+												})
+											}catch(e){
+												MackBot.SendError(message,e);
+											}
 										}
+									}).catch((e) => {
+										MackBot.SendError(message, e);
 									});
+								}).catch((e) => {
+									MackBot.SendError(message, e);
 								});
 							}catch(e){
-								message.channel.sendMessage(`:x: An error occured.`);
+								MackBot.SendError(message, e);
 							}
 						}
 					}
 				}).catch((e) => {
-					console.dir(e.stack);
+					MackBot.SendError(message, e);
 				});
 			}).catch((e) => {
-				console.dir(e.stack);
+				MackBot.SendError(message, e);
 			});
 		}).catch((e) => {
-			console.dir(e.stack);
+			MackBot.SendError(message, e);
 		});
 	}
 }

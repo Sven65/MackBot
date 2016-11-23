@@ -17,9 +17,10 @@ module.exports = class Server{
 	}
 
 	get exists(){
+		let id = this.id;
 		return MackBot.rdb.r.table("Servers").filter(function(server){
-			return server("id").eq(this.id)
-		}).isEmpty().not().run(MackBot.rdb.conn);
+			return server("id").eq(id)
+		}).isEmpty().not().default(false).run(MackBot.rdb.conn);
 	}
 
 	get toggled(){
