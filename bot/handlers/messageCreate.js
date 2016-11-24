@@ -17,11 +17,29 @@ module.exports = {
 
 			Guild.prefix.then((prefix) => {
 				Guild.toggled.then((toggled) => {
+					let prefixType = -1; // -1: None, 0: Standard, 1: Username, 2: Mention
+
+					let command = "";
+
 					if(Args[0].startsWith(prefix)){
+						prefixType = 0;
+						command = Args[0].replace(prefix, "").toLowerCase();
+					}else if(Args[0].toLowerCase() === MackBot.user.username.toLowerCase()){
+						prefixType = 1;
+						Args.shift();
+						command = Args[0].toLowerCase();
+					}else if(message.isMentioned(MackBot.user)){
+						prefixType = 2;
+						Args.shift();
+						command = Args[0].toLowerCase();
+					}
+
+
+
+					if(prefixType >= 0){
 
 						let user = new User.User(message.author.id);
-
-						let command = Args[0].replace(prefix, "").toLowerCase();
+						
 						if(toggled.indexOf(command) > -1) return;
 						
 						if(MackBot.Commands.All.indexOf(command) > -1){
