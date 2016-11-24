@@ -8,13 +8,13 @@ module.exports = {
 					if(MackBot.Commands.All.indexOf(Command) > -1){
 						Guild.toggled.then((toggled) => {
 							if(toggled.indexOf(Command) > -1){
-								Guild.toggleOff(command).then(() => {
+								Guild.toggleOff(Command).then(() => {
 									message.channel.sendMessage(`:white_check_mark: Command \`${Command}\` turned on for server.`);
 								}).catch((e) => {
 									MackBot.sendError(message, e);
 								});
 							}else{
-								Guild.toggleOn(command).then(() => {
+								Guild.toggleOn(Command).then(() => {
 									message.channel.sendMessage(`:white_check_mark: Command \`${Command}\` turned off for server.`);
 								}).catch((e) => {
 									MackBot.sendError(message, e);

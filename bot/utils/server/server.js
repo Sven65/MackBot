@@ -35,7 +35,7 @@ module.exports = class Server{
 
 	toggleOff(command){
 		let Data = {toggled: []};
-		Data.toggled = MackBot.rdb.r.row("toggled").default([]).difference(command);
+		Data.toggled = MackBot.rdb.r.row("toggled").default([]).difference([command]);
 		return MackBot.rdb.r.table("Servers").get(this.id).update(Data).run(MackBot.rdb.conn);
 	}
 }
