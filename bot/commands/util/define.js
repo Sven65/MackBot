@@ -18,8 +18,8 @@ module.exports = {
 						let Definition = res.body.list[0];
 
 						let Def = Definition.definition;
-							//Def.replace(/\r\n/gm, "\n");
-							//Def = fix.decodeHTML(Def);
+							Def.replace(/\r\n/gm, "\n");
+							Def = fix.decodeHTML(Def);
 
 						let Example = Definition.example;
 							Example = Example.replace(/\r\n/gm, "\n");
@@ -31,13 +31,16 @@ module.exports = {
 							Def = `${Def.substring(0, 1000)}...`;
 						}*/
 
-						let Matches = Def.match(/\[(.*?)\]/gi);
+						if(Def.length <= 1000){
 
-						if(Matches !== null){
-							Matches.forEach((stri) => {
-								let rpl = stri.replace("[", "").replace("]", "")
-								Def = Def.replace(stri, `[${rpl}](http://www.urbandictionary.com/define.php?term=${rpl.replace(/ /g, "%20")})`)
-							});
+							let Matches = Def.match(/\[(.*?)\]/gi);
+
+							if(Matches !== null){
+								Matches.forEach((stri) => {
+									let rpl = stri.replace("[", "").replace("]", "")
+									Def = Def.replace(stri, `[${rpl}](http://${rpl.replace(/ /g, "")}.urbanup.com)`)
+								});
+							}
 						}
 
 						//Def = Def.replace(/\n/g, "");
@@ -77,7 +80,7 @@ module.exports = {
 									"fields": [
 										{
 											"name": "Definition",
-											"value": `${Def.substring(0, 1000)}`,
+											"value": `${Def}`,
 											"inline": false,
 											"short": false
 										},
