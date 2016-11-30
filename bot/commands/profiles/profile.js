@@ -59,7 +59,7 @@ module.exports = {
 							"type": "rich",
 							"color": 0xf44274,
 							"author": {
-								"name": `${message.author.username}'s Profile`
+								"name": `${usr.username}'s Profile`
 							},
 							"fields": [
 								
